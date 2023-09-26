@@ -1,12 +1,10 @@
-site_name: NetBox Script Manager Plugin
+site_name: NetBox Script Manager
 site_url: https://kkthxbye-code.github.io/netbox_script_manager
 repo_url: https://github.com/kkthxbye-code/netbox_script_manager
 repo_name: kkthxbye-code/netbox_script_manager
 #strict: true
 nav:
   - Home: index.md
-  - Contributing: contributing.md
-  - Changelog: changelog.md
 theme:
   name: material
   language: en
@@ -49,24 +47,3 @@ plugins:
   - mkdocstrings:
       watch:
         - netbox_script_manager
-extra:
-  social:
-    - icon: fontawesome/brands/twitter
-      # replace with your own tweet link below
-      link: https://github.com/netbox-community/cookiecutter-netbox-plugin
-      name: Tweet
-    - icon: fontawesome/brands/facebook
-      # replace with your own facebook link below
-      link: https://github.com/netbox-community/cookiecutter-netbox-plugin
-      name: Facebook
-    - icon: fontawesome/brands/github
-      link: https://github.com/kkthxbye-code/netbox_script_manager
-      name: Github
-    - icon: material/email
-      link: "mailto:toft1988@gmail.com"
-  # to enable disqus, uncomment the following and put your disqus id below
-  # disqus: disqus_id
-# uncomment the following and put your google tracking id below to enable GA
-#google_analytics:
-  #- UA-xxx
-  #- auto

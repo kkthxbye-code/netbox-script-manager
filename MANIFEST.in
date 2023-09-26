@@ -3,7 +3,8 @@ include LICENSE
 include README.md
 
 recursive-include tests *
+recursive-include netbox_script_manager/templates *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
-recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
+recursive-include docs *.jpg *.png *.gif
