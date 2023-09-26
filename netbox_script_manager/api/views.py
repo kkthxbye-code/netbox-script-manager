@@ -2,12 +2,18 @@ import uuid
 
 import django_rq
 from django.conf import settings
+from django_rq.views import get_statistics
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from rest_framework import status as http_status
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
+from rest_framework.views import APIView
 from utilities.permissions import get_permission_for_model
 from utilities.utils import copy_safe_request
 
@@ -155,3 +161,11 @@ class ScriptArtifactViewSet(NetBoxModelViewSet):
     queryset = ScriptArtifact.objects.all()
     serializer_class = ScriptArtifactSerializer
     filterset_class = ScriptArtifactFilterSet
+
+
+class RqStatusViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def list(self, request):
+        return Response(get_statistics())
