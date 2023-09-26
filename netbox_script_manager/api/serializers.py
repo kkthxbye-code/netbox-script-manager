@@ -61,21 +61,13 @@ class NestedScriptInstanceSerializer(NetBoxModelSerializer):
             "id",
             "url",
             "name",
-            "group",
-            "weight",
-            "module_path",
-            "class_name",
             "display",
-            "task_queues",
-            "tags",
-            "created",
-            "last_updated",
         )
 
 
 class ScriptExecutionSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptexecution-detail")
-    script_instance = ScriptInstanceSerializer(read_only=True)
+    script_instance = NestedScriptInstanceSerializer(read_only=True)
 
     class Meta:
         model = ScriptExecution
@@ -94,9 +86,21 @@ class ScriptExecutionSerializer(NetBoxModelSerializer):
         )
 
 
+class NestedScriptExecutionSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptexecution-detail")
+
+    class Meta:
+        model = ScriptExecution
+        fields = (
+            "id",
+            "url",
+            "display",
+            "status",
+        )
+
+
 class ScriptLogLineSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptlogline-detail")
-    script_execution = ScriptExecutionSerializer(read_only=True)
     message_markdown = MarkdownField(source="message", read_only=True)
     timestamp_formatted = FormattedDateTimeField(source="timestamp", read_only=True)
 
@@ -106,7 +110,6 @@ class ScriptLogLineSerializer(NetBoxModelSerializer):
             "id",
             "url",
             "display",
-            "script_execution",
             "level",
             "message",
             "message_markdown",
@@ -134,7 +137,7 @@ class ScriptLogLineMinimalSerializer(NetBoxModelSerializer):
 
 class ScriptArtifactSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptartifact-detail")
-    script_execution = ScriptExecutionSerializer(read_only=True)
+    script_execution = NestedScriptExecutionSerializer(read_only=True)
 
     class Meta:
         model = ScriptArtifact
