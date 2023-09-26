@@ -26,10 +26,9 @@ urlpatterns = (
     path("script-executions/<int:pk>/htmx/", views.ScriptExecutionHtmx.as_view(), name="scriptexecution_htmx"),
     path("script-executions/<int:pk>/delete/", views.ScriptExecutionDeleteView.as_view(), name="scriptexecution_delete"),
     path(
-        "script-executions/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="ScriptExecution_changelog",
-        kwargs={"model": models.ScriptExecution},
+        "script-executions/<int:pk>/changes/",
+        views.ScriptExecutionObjectChangeView.as_view(),
+        name="scriptexecution_changes",
     ),
     path("script-executions/delete/", views.ScriptExecutionBulkDeleteView.as_view(), name="scriptexecution_bulk_delete"),
     # ScriptArtifact

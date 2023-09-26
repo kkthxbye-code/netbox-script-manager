@@ -9,6 +9,9 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.views.generic import View
 
+from extras.models import ObjectChange
+from extras.tables import ObjectChangeTable
+from extras.filtersets import ObjectChangeFilterSet
 from netbox.views import generic
 from utilities.views import ContentTypePermissionRequiredMixin, ViewTab, register_model_view
 from utilities.utils import copy_safe_request, normalize_querydict
@@ -50,6 +53,7 @@ class ScriptInstanceView(generic.ObjectView):
             script_execution = models.ScriptExecution(
                 script_instance=instance,
                 task_id=uuid.uuid4(),
+                request_id=request.id,
                 user=request.user,
                 status=status,
                 scheduled=schedule_at,
@@ -182,6 +186,26 @@ class ScriptExecutionView(generic.ObjectView):
         return {
             "log_lines": json.dumps(serialized_logs),
         }
+
+
+@register_model_view(models.ScriptExecution, "changes")
+class ScriptExecutionObjectChangeView(generic.ObjectChildrenView):
+    queryset = models.ScriptExecution.objects.all()
+    child_model = ObjectChange
+    table = ObjectChangeTable
+    filterset = ObjectChangeFilterSet
+    actions = ("delete", "bulk_delete")
+    template_name = "netbox_script_manager/script_execution_objectchange_list.html"
+    tab = ViewTab(
+        label="Changes",
+        badge=lambda obj: ObjectChange.objects.filter(request_id=str(obj.request_id)).count(),
+        permission="dcim.view_interface",  # TODO: Fix permission
+        weight=500,
+        hide_if_empty=False,
+    )
+
+    def get_children(self, request, parent):
+        return ObjectChange.objects.restrict(request.user, "view").filter(request_id=str(parent.request_id))
 
 
 class ScriptExecutionHtmx(generic.ObjectView):

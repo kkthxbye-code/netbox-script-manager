@@ -106,6 +106,9 @@ class ScriptExecution(models.Model):
     task_id = models.UUIDField(
         unique=True,
     )
+    request_id = models.UUIDField(
+        unique=True,
+    )
     data = models.JSONField(
         null=True,
         blank=True,

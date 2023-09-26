@@ -68,6 +68,7 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
             script_execution = ScriptExecution(
                 script_instance=script_instance,
                 task_id=uuid.uuid4(),
+                request_id=request.id,
                 user=request.user,
                 status=status,
                 scheduled=schedule_at,

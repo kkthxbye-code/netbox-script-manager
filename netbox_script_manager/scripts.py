@@ -291,6 +291,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
         next_execution = ScriptExecution(
             script_instance=script_execution.script_instance,
             task_id=uuid.uuid4(),
+            request_id=request.id,
             user=request.user,
             status=ScriptExecutionStatusChoices.STATUS_SCHEDULED,
             scheduled=new_scheduled_time,
