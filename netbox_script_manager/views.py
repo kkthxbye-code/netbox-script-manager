@@ -4,6 +4,7 @@ import uuid
 import django_rq
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.generic import View
@@ -17,6 +18,7 @@ from utilities.views import ContentTypePermissionRequiredMixin, ViewTab, registe
 from . import filtersets, forms, models, tables, util
 from .api.serializers import ScriptLogLineMinimalSerializer
 from .choices import ScriptExecutionStatusChoices
+from .models import ScriptExecution
 from .scripts import run_script
 
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
@@ -200,14 +202,14 @@ class ScriptExecutionObjectChangeView(generic.ObjectChildrenView):
     template_name = "netbox_script_manager/script_execution_objectchange_list.html"
     tab = ViewTab(
         label="Changes",
-        badge=lambda obj: ObjectChange.objects.filter(request_id=str(obj.request_id)).count(),
+        badge=lambda obj: ObjectChange.objects.filter(request_id=str(obj.request_id)).exclude(changed_object_type=ContentType.objects.get_for_model(ScriptExecution)).count(),
         permission="netbox_script_manager.view_scriptexecution",
         weight=500,
         hide_if_empty=False,
     )
 
     def get_children(self, request, parent):
-        return ObjectChange.objects.restrict(request.user, "view").filter(request_id=str(parent.request_id))
+        return ObjectChange.objects.restrict(request.user, "view").filter(request_id=str(parent.request_id)).exclude(changed_object_type=ContentType.objects.get_for_model(ScriptExecution))
 
 
 @register_model_view(models.ScriptExecution, "data")
