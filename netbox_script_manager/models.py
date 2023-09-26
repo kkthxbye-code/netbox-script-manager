@@ -179,6 +179,8 @@ class ScriptInstance(NetBoxModel):
     name = models.CharField(max_length=100, null=False, blank=False)
     module_path = models.CharField(max_length=1000, null=False, blank=False)
     class_name = models.CharField(max_length=1000, null=False, blank=False)
+    group = models.CharField(max_length=100, null=True, blank=True)
+    weight = models.PositiveSmallIntegerField(default=1000)
     description = models.CharField(max_length=1000, null=True, blank=True)
     task_queues = ArrayField(
         base_field=models.CharField(max_length=100, blank=True),
@@ -205,6 +207,7 @@ class ScriptInstance(NetBoxModel):
             return script_class()
 
     class Meta:
+        ordering = ("group", "-weight", "name")
         indexes = [
             models.Index(fields=["name"]),
         ]

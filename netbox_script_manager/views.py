@@ -108,6 +108,8 @@ class ScriptInstanceLoadView(ContentTypePermissionRequiredMixin, View):
                     class_name=class_name,
                     description=script.description,
                     task_queues=script.task_queues,
+                    group=script.group,
+                    weight=script.weight,
                 )
                 script_instance.full_clean()
                 script_instance.save()

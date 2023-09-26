@@ -20,7 +20,7 @@ from utilities.forms.fields import TagFilterField
 class ScriptInstanceForm(NetBoxModelForm):
     class Meta:
         model = ScriptInstance
-        fields = ("name", "description", "task_queues", "tags")
+        fields = ("name", "group", "weight", "description", "task_queues", "tags")
 
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),
@@ -30,6 +30,7 @@ class ScriptInstanceForm(NetBoxModelForm):
 class ScriptInstanceFilterForm(NetBoxModelFilterSetForm):
     model = ScriptInstance
     name = forms.CharField(required=False)
+    group = forms.CharField(required=False)
     tag = TagFilterField(model)
 
 

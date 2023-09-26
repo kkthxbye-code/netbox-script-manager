@@ -75,6 +75,14 @@ class CustomScript:
         return getattr(self.Meta, "description", "")
 
     @classproperty
+    def group(self):
+        return getattr(self.Meta, "group", None)
+
+    @classproperty
+    def weight(self):
+        return getattr(self.Meta, "weight", 1000)
+
+    @classproperty
     def field_order(self):
         return getattr(self.Meta, "field_order", None)
 

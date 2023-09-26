@@ -7,12 +7,13 @@ from .models import ScriptInstance, ScriptExecution, ScriptLogLine, ScriptArtifa
 
 class ScriptInstanceTable(NetBoxTable):
     name = tables.Column(linkify=True)
+    group = tables.Column(order_by=("group", "-weight", "name"))
     tags = columns.TagColumn(url_name="plugins:netbox_script_manager:scriptinstance_list")
 
     class Meta(NetBoxTable.Meta):
         model = ScriptInstance
-        fields = ("pk", "id", "name", "description", "module_path", "class_name", "created", "last_updated", "tags")
-        default_columns = ("name", "description", "module_path", "class_name", "tags")
+        fields = ("pk", "id", "name", "group", "weight", "description", "module_path", "class_name", "created", "last_updated", "tags")
+        default_columns = ("name", "group", "description", "module_path", "class_name", "tags")
 
 
 class ScriptExecutionTable(NetBoxTable):

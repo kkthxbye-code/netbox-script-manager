@@ -33,6 +33,8 @@ class ScriptInstanceSerializer(NetBoxModelSerializer):
             "id",
             "url",
             "name",
+            "group",
+            "weight",
             "display",
             "task_queues",
             "tags",
