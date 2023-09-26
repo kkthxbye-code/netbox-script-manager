@@ -2,7 +2,7 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
@@ -10,7 +10,7 @@ with open("README.md") as readme_file:
 requirements = []
 
 setup(
-    author="Simon Toft",
+    author="kkthxbye-code",
     author_email="festll234@gmail.com",
     python_requires=">=3.8",
     classifiers=[
