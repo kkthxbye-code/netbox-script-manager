@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('netbox_script_manager', '0015_alter_scriptinstance_options'),
+        ("netbox_script_manager", "0015_alter_scriptinstance_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='scriptexecution',
-            name='request_id',
+            model_name="scriptexecution",
+            name="request_id",
             field=models.UUIDField(unique=True),
             preserve_default=False,
         ),

@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('netbox_script_manager', '0014_scriptexecution_task_queue'),
+        ("netbox_script_manager", "0014_scriptexecution_task_queue"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='scriptinstance',
-            options={'ordering': ('group', 'weight', 'name')},
+            name="scriptinstance",
+            options={"ordering": ("group", "weight", "name")},
         ),
     ]

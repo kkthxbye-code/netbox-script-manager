@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('netbox_script_manager', '0016_scriptexecution_request_id'),
+        ("netbox_script_manager", "0016_scriptexecution_request_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='scriptexecution',
-            name='data',
+            model_name="scriptexecution",
+            name="data",
             field=models.JSONField(blank=True, default={}, null=True),
         ),
     ]
