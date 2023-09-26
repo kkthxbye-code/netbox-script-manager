@@ -13,7 +13,7 @@ from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterFie
 from django.contrib.auth.models import User
 
 from .models import ScriptInstance, ScriptExecution
-from .choices import JobStatusChoices
+from .choices import ScriptExecutionStatusChoices
 from utilities.forms.fields import TagFilterField
 
 
@@ -54,7 +54,7 @@ class ScriptExecutionFilterForm(SavedFiltersMixin, FilterForm):
     )
     model = ScriptExecution
 
-    status = forms.MultipleChoiceField(choices=JobStatusChoices, required=False)
+    status = forms.MultipleChoiceField(choices=ScriptExecutionStatusChoices, required=False)
     created__after = forms.DateTimeField(required=False, widget=DateTimePicker())
     created__before = forms.DateTimeField(required=False, widget=DateTimePicker())
     scheduled__after = forms.DateTimeField(required=False, widget=DateTimePicker())

@@ -14,6 +14,7 @@ from utilities.utils import copy_safe_request, normalize_querydict
 
 from . import filtersets, forms, models, tables
 from . import util
+from .choices import ScriptExecutionStatusChoices
 from .scripts import run_script
 from .api.serializers import ScriptLogLineMinimalSerializer
 
@@ -34,26 +35,51 @@ class ScriptInstanceView(generic.ObjectView):
         form = instance.script.as_form(request.POST, script_instance=instance)
 
         if form.is_valid():
-            script_execution = models.ScriptExecution(
-                script_instance=instance,
-                task_id=uuid.uuid4(),
-                user=request.user,
-            )
-            script_execution.full_clean()
-            script_execution.save()
+            schedule_at = form.cleaned_data.pop("_schedule_at")
+            interval = form.cleaned_data.pop("_interval")
+
+            status = ScriptExecutionStatusChoices.STATUS_SCHEDULED if schedule_at else ScriptExecutionStatusChoices.STATUS_PENDING
 
             task_queue = form.cleaned_data.pop("_task_queue")
             if not task_queue:
                 task_queue = "default"
 
-            queue = django_rq.get_queue(task_queue)
-            queue.enqueue(
-                run_script,
-                data=form.cleaned_data,
-                request=copy_safe_request(request),
-                commit=form.cleaned_data.pop("_commit"),
-                script_execution=script_execution,
+            script_execution = models.ScriptExecution(
+                script_instance=instance,
+                task_id=uuid.uuid4(),
+                user=request.user,
+                status=status,
+                scheduled=schedule_at,
+                interval=interval,
+                task_queue=task_queue,
             )
+            script_execution.full_clean()
+            script_execution.save()
+
+            queue = django_rq.get_queue(task_queue)
+
+            if script_execution.scheduled:
+                queue.enqueue_at(
+                    script_execution.scheduled,
+                    run_script,
+                    job_id=str(script_execution.task_id),
+                    data=form.cleaned_data,
+                    request=copy_safe_request(request),
+                    commit=form.cleaned_data.pop("_commit"),
+                    script_execution=script_execution,
+                    interval=script_execution.interval,
+                    # TODO: Job timeout
+                )
+            else:
+                queue.enqueue(
+                    run_script,
+                    job_id=str(script_execution.task_id),
+                    data=form.cleaned_data,
+                    request=copy_safe_request(request),
+                    commit=form.cleaned_data.pop("_commit"),
+                    script_execution=script_execution,
+                    # TODO: Job timeout
+                )
 
             return redirect("plugins:netbox_script_manager:scriptexecution", pk=script_execution.pk)
 

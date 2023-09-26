@@ -1,6 +1,7 @@
 import inspect
 import logging
 import traceback
+import uuid
 from datetime import timedelta
 
 from django.utils.functional import classproperty
@@ -17,8 +18,8 @@ from .forms import ScriptForm
 from extras.signals import clear_webhooks
 from utilities.exceptions import AbortScript, AbortTransaction
 
-from .models import ScriptLogLine, ScriptArtifact
-from .choices import LogLevelChoices, JobStatusChoices
+from .models import ScriptLogLine, ScriptArtifact, ScriptExecution
+from .choices import LogLevelChoices, ScriptExecutionStatusChoices
 
 # from .forms import ScriptForm
 
@@ -257,7 +258,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
             script.log_info("Database changes have been reverted due to error.")
             # job.data = ScriptOutputSerializer(script).data
 
-            script_execution.terminate(status=JobStatusChoices.STATUS_ERRORED)
+            script_execution.terminate(status=ScriptExecutionStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)
 
         # logger.info(f"Script completed in {script_execution.duration}")
@@ -274,20 +275,32 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
     if script_execution.interval:
         new_scheduled_time = script_execution.scheduled + timedelta(minutes=script_execution.interval)
         logger.info(f"Scheduling next job for {new_scheduled_time}")
-        """ TODO
-        Job.enqueue(
-            run_script,
-            instance=script_execution.object,
-            name=script_execution.name,
-            user=script_execution.user,
-            schedule_at=new_scheduled_time,
+
+        next_execution = ScriptExecution(
+            script_instance=script_execution.script_instance,
+            task_id=uuid.uuid4(),
+            user=request.user,
+            status=ScriptExecutionStatusChoices.STATUS_SCHEDULED,
+            scheduled=new_scheduled_time,
             interval=script_execution.interval,
-            job_timeout=script.job_timeout,
+            task_queue=script_execution.task_queue,
+        )
+        next_execution.full_clean()
+        next_execution.save()
+
+        queue = django_rq.get_queue(next_execution.task_queue)
+
+        queue.enqueue_at(
+            next_execution.scheduled,
+            run_script,
+            job_id=str(next_execution.task_id),
             data=data,
             request=request,
-            commit=commit
+            commit=commit,
+            script_execution=next_execution,
+            interval=next_execution.interval,
+            # TODO: Job timeout
         )
-        """
 
 
 def task_queue_choices(task_queues):

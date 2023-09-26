@@ -13,7 +13,7 @@ from django.utils import timezone
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
-from .choices import LogLevelChoices, JobStatusChoices
+from .choices import LogLevelChoices, ScriptExecutionStatusChoices
 from .util import clear_module_cache
 
 
@@ -89,13 +89,14 @@ class ScriptExecution(models.Model):
     )
     status = models.CharField(
         max_length=30,
-        choices=JobStatusChoices,
-        default=JobStatusChoices.STATUS_PENDING,
+        choices=ScriptExecutionStatusChoices,
+        default=ScriptExecutionStatusChoices.STATUS_PENDING,
     )
     scheduled = models.DateTimeField(
         null=True,
         blank=True,
     )
+    task_queue = models.CharField(max_length=100, default="default")
     interval = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -135,11 +136,11 @@ class ScriptExecution(models.Model):
             return
 
         self.started = timezone.now()
-        self.status = JobStatusChoices.STATUS_RUNNING
+        self.status = ScriptExecutionStatusChoices.STATUS_RUNNING
         self.save()
 
-    def terminate(self, status=JobStatusChoices.STATUS_COMPLETED):
-        valid_statuses = JobStatusChoices.TERMINAL_STATE_CHOICES
+    def terminate(self, status=ScriptExecutionStatusChoices.STATUS_COMPLETED):
+        valid_statuses = ScriptExecutionStatusChoices.TERMINAL_STATE_CHOICES
 
         if status not in valid_statuses:
             raise ValueError(f"Invalid status for job termination. Choices are: {', '.join(valid_statuses)}")
@@ -147,6 +148,15 @@ class ScriptExecution(models.Model):
         self.status = status
         self.completed = timezone.now()
         self.save()
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+
+        queue = django_rq.get_queue(self.task_queue)
+        task = queue.fetch_job(str(self.task_id))
+
+        if task:
+            task.cancel()
 
     @property
     def duration(self):
@@ -173,6 +183,9 @@ class ScriptExecution(models.Model):
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_script_manager:scriptexecution", args=[self.pk])
+
+    def get_status_color(self):
+        return ScriptExecutionStatusChoices.colors.get(self.status)
 
 
 class ScriptInstance(NetBoxModel):

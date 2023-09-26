@@ -19,6 +19,7 @@ class ScriptInstanceTable(NetBoxTable):
 class ScriptExecutionTable(NetBoxTable):
     name = tables.Column(accessor=Accessor("script_instance__name"), linkify=True)
     actions = columns.ActionsColumn(actions=("delete",))
+    status = columns.ChoiceFieldColumn()
 
     class Meta(NetBoxTable.Meta):
         model = ScriptExecution

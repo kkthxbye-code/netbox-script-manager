@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 from netbox.filtersets import NetBoxModelFilterSet, BaseFilterSet
 from .models import ScriptInstance, ScriptArtifact, ScriptExecution, ScriptLogLine
-from .choices import JobStatusChoices, LogLevelChoices
+from .choices import ScriptExecutionStatusChoices, LogLevelChoices
 
 
 class ScriptInstanceFilterSet(NetBoxModelFilterSet):
@@ -50,7 +50,7 @@ class ScriptExecutionFilterSet(BaseFilterSet):
     completed = django_filters.DateTimeFilter()
     completed__before = django_filters.DateTimeFilter(field_name="completed", lookup_expr="lte")
     completed__after = django_filters.DateTimeFilter(field_name="completed", lookup_expr="gte")
-    status = django_filters.MultipleChoiceFilter(choices=JobStatusChoices, null_value=None)
+    status = django_filters.MultipleChoiceFilter(choices=ScriptExecutionStatusChoices, null_value=None)
 
     class Meta:
         model = ScriptExecution

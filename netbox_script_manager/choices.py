@@ -17,7 +17,7 @@ class LogLevelChoices(ChoiceSet):
     )
 
 
-class JobStatusChoices(ChoiceSet):
+class ScriptExecutionStatusChoices(ChoiceSet):
     STATUS_PENDING = "pending"
     STATUS_SCHEDULED = "scheduled"
     STATUS_RUNNING = "running"
