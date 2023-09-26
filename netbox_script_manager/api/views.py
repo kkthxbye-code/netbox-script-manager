@@ -12,12 +12,16 @@ from utilities.permissions import get_permission_for_model
 from utilities.utils import copy_safe_request
 
 from ..choices import ScriptExecutionStatusChoices
-from ..filtersets import (ScriptArtifactFilterSet, ScriptExecutionFilterSet, ScriptInstanceFilterSet,
-                          ScriptLogLineFilterSet)
+from ..filtersets import ScriptArtifactFilterSet, ScriptExecutionFilterSet, ScriptInstanceFilterSet, ScriptLogLineFilterSet
 from ..models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 from ..scripts import run_script
-from .serializers import (ScriptArtifactSerializer, ScriptExecutionSerializer, ScriptInputSerializer,
-                          ScriptInstanceSerializer, ScriptLogLineSerializer)
+from .serializers import (
+    ScriptArtifactSerializer,
+    ScriptExecutionSerializer,
+    ScriptInputSerializer,
+    ScriptInstanceSerializer,
+    ScriptLogLineSerializer,
+)
 
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
