@@ -63,7 +63,7 @@ class ScriptInstanceView(generic.ObjectView):
             )
 
             # Save script input
-            script_execution.data["input"] = util.prepare_post_data(request.POST)
+            script_execution.data["input"] = util.prepare_post_data(request)
 
             script_execution.full_clean()
             script_execution.save()
@@ -124,8 +124,7 @@ class ScriptInstanceBulkDeleteView(generic.BulkDeleteView):
 
 class ScriptInstanceLoadView(ContentTypePermissionRequiredMixin, View):
     def get_required_permission(self):
-        # TODO: Use correct permission
-        return "extras.view_script"
+        return "netbox_script_manager.add_scriptinstance"
 
     def get(self, request):
         scripts_found = False
@@ -171,7 +170,7 @@ class ScriptInstanceScriptExecutionsView(generic.ObjectChildrenView):
     tab = ViewTab(
         label="Executions",
         badge=lambda obj: obj.script_executions.count(),
-        permission="dcim.view_interface",  # TODO: Fix permission
+        permission="netbox_script_manager.view_script_execution",
         weight=520,
         hide_if_empty=False,
     )
@@ -204,7 +203,7 @@ class ScriptExecutionObjectChangeView(generic.ObjectChildrenView):
     tab = ViewTab(
         label="Changes",
         badge=lambda obj: ObjectChange.objects.filter(request_id=str(obj.request_id)).count(),
-        permission="dcim.view_interface",  # TODO: Fix permission
+        permission="netbox_script_manager.view_scriptexecution",
         weight=500,
         hide_if_empty=False,
     )

@@ -92,7 +92,16 @@
     <div class="col col-12 col-md-12 col-xl-4">
       <div class="card">
         <h5 class="card-header">Artifacts</h5>
-          {% htmx_table 'plugins:netbox_script_manager:scriptartifact_list' script_execution_id=object.pk  %}
+          {% if perms.netbox_script_manager.view_scriptartifact %}
+            {% htmx_table 'plugins:netbox_script_manager:scriptartifact_list' script_execution_id=object.pk  %}
+          {% else %}
+            <div class="card-body">
+              <div class="alert alert-warning">
+                <i class="mdi mdi-alert"></i>
+                You do not have permission to view Script Artifacts.
+              </div>
+            </div>
+          {% endif %}  
       </div>
     </div>
     <div class="col col-md-12">

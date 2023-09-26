@@ -11,10 +11,10 @@
     <div class="col col-md-6">
       <div class="card">
         <div class="card-body">
-          {% if not perms.extras.run_script %}
+          {% if not perms.netbox_script_manager.run_scriptinstance or not perms.netbox_script_manager.view_scriptlogline %}
             <div class="alert alert-warning">
               <i class="mdi mdi-alert"></i>
-              You do not have permission to run scripts.
+              You do not have permission to run scripts. The user must have both the run action for ScriptInstances and the view action for ScriptLogLines.
             </div>
           {% endif %}
           {% if not form %}
@@ -56,7 +56,7 @@
                 </div>
                 <div class="float-end">
                   <a href="{% url 'extras:script_list' %}" class="btn btn-outline-danger">Cancel</a>
-                  <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
+                  <button type="submit" name="_run" class="btn btn-primary"{% if not perms.netbox_script_manager.run_scriptinstance or not perms.netbox_script_manager.view_scriptlogline %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
                 </div>
               </form>
             </div>

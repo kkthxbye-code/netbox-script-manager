@@ -61,7 +61,6 @@ def load_scripts():
         # Iterate over all modules in the custom script root
         for importer, module_name, _ in modules:
             # We need to manually prepend the subpackage name to the module name to get the full module path
-            # TODO: There might be a better way of doing this.
             module_name = f"{CUSTOM_SCRIPT_SUBPACKAGE}.{module_name}"
 
             try:
@@ -94,6 +93,9 @@ def prepare_post_data(request):
     """
     Normalize QueryDict to a normal dict and remove unwanted fields.
     """
+    if not hasattr(request, "POST"):
+        return None
+
     post_data = normalize_querydict(request.POST)
 
     # Remove unwanted elements

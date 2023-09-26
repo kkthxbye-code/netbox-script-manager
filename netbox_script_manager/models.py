@@ -21,6 +21,7 @@ from .util import clear_module_cache
 lock = threading.Lock()
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
+
 class ScriptLogLine(models.Model):
     script_execution = models.ForeignKey(
         to="ScriptExecution",
@@ -127,8 +128,7 @@ class ScriptExecution(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
 
-        rq_queue_name = plugin_config.get("DEFAULT_QUEUE")
-        queue = django_rq.get_queue(rq_queue_name)
+        queue = django_rq.get_queue(self.task_queue)
         job = queue.fetch_job(str(self.task_id))
 
         if job:
@@ -204,13 +204,6 @@ class ScriptInstance(NetBoxModel):
         default=list,
         help_text="Comma separated list of available task queues for the script",
     )
-
-    # TODO: Figure out what to do
-    def enqueue(self):
-        script_execution = ScriptExecution.objects.create(
-            script_instance=self,
-            task_id=None,
-        )
 
     @cached_property
     def script(self):
