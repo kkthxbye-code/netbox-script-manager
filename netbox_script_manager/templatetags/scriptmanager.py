@@ -22,7 +22,7 @@ def urlencode_dict(value):
     try:
         qd = dict_to_querydict(value)
         return f"?{qd.urlencode()}"
-    except:
+    except Exception:
         return ""
 
 

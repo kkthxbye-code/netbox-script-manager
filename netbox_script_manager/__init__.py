@@ -25,6 +25,6 @@ config = NetboxScriptManagerConfig
 
 # To allow comitting script logs inside the transaction of a running script,
 # we must use a seperate database connection.
-from django.db import connections
+from django.db import connections  # noqa: E402
 
 connections.databases["script_log"] = connections.databases["default"]

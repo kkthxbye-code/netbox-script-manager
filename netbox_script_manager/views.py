@@ -150,7 +150,7 @@ class ScriptInstanceLoadView(ContentTypePermissionRequiredMixin, View):
                 messages.success(request, f'Script "{script_name}" loaded')
 
         if not scripts_found:
-            messages.info(request, f"No new scripts found")
+            messages.info(request, "No new scripts found")
 
         return redirect("plugins:netbox_script_manager:scriptinstance_list")
 

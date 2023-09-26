@@ -123,15 +123,6 @@ class ScriptExecution(models.Model):
             models.Index(fields=["completed"]),
         ]
 
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-
-        queue = django_rq.get_queue(self.task_queue)
-        job = queue.fetch_job(str(self.task_id))
-
-        if job:
-            job.cancel()
-
     def start(self):
         if self.started is not None:
             return

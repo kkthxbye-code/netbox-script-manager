@@ -4,7 +4,7 @@ import sys
 import threading
 
 from django.conf import settings
-from utilities.utils import copy_safe_request, normalize_querydict
+from utilities.utils import normalize_querydict
 
 # Fields not included when saving script input
 EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run"]

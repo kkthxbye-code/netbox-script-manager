@@ -2,9 +2,5 @@
 profile = 'black'
 line_length = 140
 
-[tool.flake8]
-max-line-length = 140
-extend-ignore = ["E203"]
-
 [tool.black]
 line-length = 140
