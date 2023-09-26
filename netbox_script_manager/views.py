@@ -202,14 +202,20 @@ class ScriptExecutionObjectChangeView(generic.ObjectChildrenView):
     template_name = "netbox_script_manager/script_execution_objectchange_list.html"
     tab = ViewTab(
         label="Changes",
-        badge=lambda obj: ObjectChange.objects.filter(request_id=str(obj.request_id)).exclude(changed_object_type=ContentType.objects.get_for_model(ScriptExecution)).count(),
+        badge=lambda obj: ObjectChange.objects.filter(request_id=str(obj.request_id))
+        .exclude(changed_object_type=ContentType.objects.get_for_model(ScriptExecution))
+        .count(),
         permission="netbox_script_manager.view_scriptexecution",
         weight=500,
         hide_if_empty=False,
     )
 
     def get_children(self, request, parent):
-        return ObjectChange.objects.restrict(request.user, "view").filter(request_id=str(parent.request_id)).exclude(changed_object_type=ContentType.objects.get_for_model(ScriptExecution))
+        return (
+            ObjectChange.objects.restrict(request.user, "view")
+            .filter(request_id=str(parent.request_id))
+            .exclude(changed_object_type=ContentType.objects.get_for_model(ScriptExecution))
+        )
 
 
 @register_model_view(models.ScriptExecution, "data")

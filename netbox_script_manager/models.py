@@ -1,4 +1,5 @@
 import importlib
+import json
 import threading
 from functools import cached_property
 
@@ -6,6 +7,7 @@ import django_rq
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from django.core import serializers
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -150,6 +152,18 @@ class ScriptExecution(ExportTemplatesMixin, WebhooksMixin, ChangeLoggingMixin, m
 
         if task:
             task.cancel()
+
+    def serialize_object(obj, resolve_tags=True, extra=None):
+        """
+        While the netbox serialize_object claims to support excluding fields, it doesn't in reality.
+        """
+        json_str = serializers.serialize("json", [obj])
+        data = json.loads(json_str)[0]["fields"]
+
+        # Don't serialize the data field as it can be quite large
+        data.pop("data")
+
+        return data
 
     @property
     def duration(self):

@@ -50,6 +50,29 @@ class ScriptInstanceSerializer(NetBoxModelSerializer):
         )
 
 
+class NestedScriptInstanceSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptinstance-detail")
+    name = serializers.CharField(required=True)
+
+    class Meta:
+        read_only_fields = ["module_path", "class_name"]
+        model = ScriptInstance
+        fields = (
+            "id",
+            "url",
+            "name",
+            "group",
+            "weight",
+            "module_path",
+            "class_name",
+            "display",
+            "task_queues",
+            "tags",
+            "created",
+            "last_updated",
+        )
+
+
 class ScriptExecutionSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptexecution-detail")
     script_instance = ScriptInstanceSerializer(read_only=True)
