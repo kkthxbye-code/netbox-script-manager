@@ -299,7 +299,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
             commit=commit,
             script_execution=next_execution,
             interval=next_execution.interval,
-            # TODO: Job timeout
+            job_timeout=script.job_timeout,
         )
 
 

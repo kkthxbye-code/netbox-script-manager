@@ -68,7 +68,7 @@ class ScriptInstanceView(generic.ObjectView):
                     commit=form.cleaned_data.pop("_commit"),
                     script_execution=script_execution,
                     interval=script_execution.interval,
-                    # TODO: Job timeout
+                    job_timeout=instance.script.job_timeout,
                 )
             else:
                 queue.enqueue(
@@ -78,7 +78,7 @@ class ScriptInstanceView(generic.ObjectView):
                     request=copy_safe_request(request),
                     commit=form.cleaned_data.pop("_commit"),
                     script_execution=script_execution,
-                    # TODO: Job timeout
+                    job_timeout=instance.script.job_timeout,
                 )
 
             return redirect("plugins:netbox_script_manager:scriptexecution", pk=script_execution.pk)
