@@ -17,11 +17,13 @@ class ScriptInstanceTable(NetBoxTable):
 
 class ScriptExecutionTable(NetBoxTable):
     name = tables.Column(accessor=Accessor("script_instance__name"), linkify=True)
+    actions = columns.ActionsColumn(actions=("delete",))
 
     class Meta(NetBoxTable.Meta):
         model = ScriptExecution
         fields = ("pk", "id", "name", "user", "created", "started", "completed", "status", "scheduled", "interval", "task_id")
         default_columns = (
+            "id",
             "name",
             "script_instance",
             "user",
@@ -34,17 +36,12 @@ class ScriptExecutionTable(NetBoxTable):
             "task_id",
         )
 
-    actions = columns.ActionsColumn(actions=("delete",))
-
 
 class ScriptLogLineTable(NetBoxTable):
     script_execution = tables.Column(linkify=True)
     message = columns.MarkdownColumn()
     level = columns.ChoiceFieldColumn()
-
-    actions = columns.ActionsColumn(
-        actions=tuple(),
-    )
+    actions = columns.ActionsColumn(actions=tuple())
 
     class Meta(NetBoxTable.Meta):
         model = ScriptLogLine
@@ -54,14 +51,9 @@ class ScriptLogLineTable(NetBoxTable):
 
 class ScriptArtifactTable(NetBoxTable):
     name = tables.Column(linkify=True)
-    actions = columns.ActionsColumn(
-        actions=("delete",),
-    )
+    actions = columns.ActionsColumn(actions=("delete",))
 
     class Meta(NetBoxTable.Meta):
         model = ScriptArtifact
-        fields = (
-            "id",
-            "name",
-        )
+        fields = ("id", "name")
         default_columns = ("name",)

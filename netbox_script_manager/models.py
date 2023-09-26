@@ -183,7 +183,7 @@ class ScriptInstance(NetBoxModel):
         base_field=models.CharField(max_length=100, blank=True),
         blank=True,
         default=list,
-        help_text="List of available task queues for the script.",
+        help_text="Comma separated list of available task queues for the script",
     )
 
     # TODO: Figure out what to do

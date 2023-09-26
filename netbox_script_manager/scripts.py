@@ -95,8 +95,8 @@ class CustomScript:
         return getattr(self.Meta, "scheduling_enabled", True)
 
     @classproperty
-    def task_queue(self):
-        return getattr(self.Meta, "task_queue", "default")
+    def task_queues(self):
+        return getattr(self.Meta, "task_queues", ["default"])
 
     @classmethod
     def _get_vars(cls):

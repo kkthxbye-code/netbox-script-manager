@@ -34,6 +34,7 @@ class ScriptInstanceSerializer(NetBoxModelSerializer):
             "url",
             "name",
             "display",
+            "task_queues",
             "tags",
             "created",
             "last_updated",
