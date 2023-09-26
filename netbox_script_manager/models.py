@@ -220,7 +220,7 @@ class ScriptInstance(NetBoxModel):
             return script_class()
 
     class Meta:
-        ordering = ("group", "-weight", "name")
+        ordering = ("group", "weight", "name")
         indexes = [
             models.Index(fields=["name"]),
         ]

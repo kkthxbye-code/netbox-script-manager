@@ -7,7 +7,7 @@ from .models import ScriptInstance, ScriptExecution, ScriptLogLine, ScriptArtifa
 
 class ScriptInstanceTable(NetBoxTable):
     name = tables.Column(linkify=True)
-    group = tables.Column(order_by=("group", "-weight", "name"))
+    group = tables.Column(order_by=("group", "weight", "name"))
     tags = columns.TagColumn(url_name="plugins:netbox_script_manager:scriptinstance_list")
 
     class Meta(NetBoxTable.Meta):
