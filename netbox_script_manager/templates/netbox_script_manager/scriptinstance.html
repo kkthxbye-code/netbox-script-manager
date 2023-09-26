@@ -1,0 +1,91 @@
+
+{% extends 'generic/object.html' %}
+{% load render_table from django_tables2 %}
+{% load helpers %}
+{% load form_helpers %}
+{% load log_levels %}
+{% load scriptmanager %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <div class="card-body">
+          {% if not perms.extras.run_script %}
+            <div class="alert alert-warning">
+              <i class="mdi mdi-alert"></i>
+              You do not have permission to run scripts.
+            </div>
+          {% endif %}
+          {% if not form %}
+            <p>Script could not be loaded from module path <strong>{{object.script_path}}</strong>.</p>
+            <div class="accordion" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Show Exception
+                  </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <pre>{{ exception|format_exception }}</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="field-group my-4">
+              <form action="" method="post" enctype="multipart/form-data" class="form form-object-edit">
+                {% csrf_token %}
+                <div class="field-group my-4">
+                  {# Render grouped fields according to declared fieldsets #}
+                  {% for group, fields in object.script.get_fieldsets %}
+                    {% if fields %}
+                      <div class="field-group mb-5">
+                        <div class="row mb-2">
+                          <h5 class="offset-sm-3">{{ group }}</h5>
+                        </div>
+                        {% for name in fields %}
+                          {% with field=form|getfield:name %}
+                            {% render_field field %}
+                          {% endwith %}
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <div class="float-end">
+                  <a href="{% url 'extras:script_list' %}" class="btn btn-outline-danger">Cancel</a>
+                  <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> Run Script</button>
+                </div>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% include 'inc/panels/custom_fields.html' %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+
+        <h5 class="card-header">Script Instance</h5>
+
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+    </div>
+  </div>
+{% endblock content %}
+

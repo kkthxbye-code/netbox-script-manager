@@ -1,0 +1,111 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load perms %}
+{% load static %}
+{% load scriptmanager %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:object %}
+        {% delete_button object %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block subtitle %}
+  <div class="object-subtitle">
+    <span>Created {{ object.created|annotated_date }}</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-12 col-md-6 col-xl-4">
+      <div class="card">
+        <h5 class="card-header">Information</h5>
+
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Script</th>
+              <td>
+                <a href="{{ object.script_instance.get_absolute_url }}">{{ object.script_instance.name }}</a>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td class="rendered-markdown">{{ object.script_instance.description|markdown }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Task ID</th>
+              <td>{{ object.task_id }}</td>
+            </tr>
+            <tr>
+              <th scope="row">User</th>
+              <td>{{ object.user }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col col-12 col-md-6 col-xl-4" hx-get="{% url 'plugins:netbox_script_manager:scriptexecution_htmx' pk=object.pk %}"
+    hx-trigger="load, every 2s [!document.script_manager.script_completed]" >
+      <div class="card">
+        <h5 class="card-header">Result</h5>
+
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Status</th>
+              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Created</th>
+              <td>{{ object.created|annotated_date }}</td>
+            </tr>
+            <tr>
+            <th scope="row">Started</th>
+              <td>{{ object.started|annotated_date }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Completed</th>
+              <td>{{ object.completed|annotated_date }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Duration</th>
+              <td>{{ object.duration }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col col-12 col-md-12 col-xl-4">
+      <div class="card">
+        <h5 class="card-header">Artifacts</h5>
+          {% htmx_table 'plugins:netbox_script_manager:scriptartifact_list' script_execution_id=object.pk  %}
+      </div>
+    </div>
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Logs</h5>
+
+        <div class="card-body">
+          <div id="app"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.script_manager = {
+      result_id: {{ object.pk }},
+      script_completed: {{ object.is_completed|lower }},
+    }
+  </script>
+  <script defer src="{% static 'netbox_script_manager/main.js' %}"></script>
+
+  
+{% endblock %}
