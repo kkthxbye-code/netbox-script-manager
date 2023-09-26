@@ -31,6 +31,7 @@ urlpatterns = (
         name="scriptexecution_changes",
     ),
     path("script-executions/delete/", views.ScriptExecutionBulkDeleteView.as_view(), name="scriptexecution_bulk_delete"),
+    path("script-executions/<int:pk>/data/", views.ScriptExecutionDataView.as_view(), name="scriptexecution_data"),
     # ScriptArtifact
     path("script-artifacts/", views.ScriptArtifactListView.as_view(), name="scriptartifact_list"),
     path("script-artifacts/<int:pk>/", views.ScriptArtifactDownloadView.as_view(), name="scriptartifact_download"),

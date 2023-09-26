@@ -39,12 +39,8 @@ class CustomScript:
 
     def __init__(self):
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
-        self.log = []
-
-        # TODO: This must be set by the script executor
         self.script_execution = None
         self.request = None
-
         self.filename = inspect.getfile(self.__class__)
         self.source = inspect.getsource(self.__class__)
 
@@ -107,7 +103,7 @@ class CustomScript:
 
     @classproperty
     def task_queues(self):
-        return getattr(self.Meta, "task_queues", [plugin_config.get("DEFAULT_QUEUE")])
+        return getattr(self.Meta, "task_queues", None)
 
     @classmethod
     def _get_vars(cls):
@@ -147,11 +143,11 @@ class CustomScript:
 
         # Append the default fieldset if defined in the Meta class
         exec_parameters = ["_schedule_at", "_interval", "_task_queue", "_commit"] if self.scheduling_enabled else ["_task_queue", "_commit"]
-        
+
         # Remove task queue field if there's no queues defined
         if not self.task_queues:
             exec_parameters.remove("_task_queue")
-        
+
         fieldsets.append(("Script Execution Parameters", exec_parameters))
 
         return fieldsets
@@ -168,9 +164,9 @@ class CustomScript:
 
         # Set initial "commit" checkbox state based on the script's Meta parameter
         form.fields["_commit"].initial = self.commit_default
-        
+
         choices = task_queue_choices(script_instance.task_queues)
-        
+
         if choices:
             form.fields["_task_queue"].choices = choices
         else:
@@ -231,7 +227,6 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
 
     script = script_execution.script_instance.script
     script.script_execution = script_execution
-    script_execution.data['input'] = json.dumps(request.POST)
 
     logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
     logger.info(f"Running script (commit={commit})")
@@ -259,7 +254,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
                 script.log_info("Database changes have been reverted automatically.")
                 clear_webhooks.send(request)
 
-            script_execution.data['output'] = output
+            script_execution.data["output"] = output
             script_execution.terminate()
         except Exception as e:
             if type(e) is AbortScript:
@@ -270,7 +265,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
                 script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
-            script_execution.data['output'] = output
+            script_execution.data["output"] = output
 
             script_execution.terminate(status=ScriptExecutionStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)

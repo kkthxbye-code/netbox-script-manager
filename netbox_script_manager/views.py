@@ -23,7 +23,9 @@ from .scripts import run_script
 from .api.serializers import ScriptLogLineMinimalSerializer
 
 
+EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run"]
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
+
 
 class ScriptInstanceView(generic.ObjectView):
     queryset = models.ScriptInstance.objects.all()
@@ -60,6 +62,16 @@ class ScriptInstanceView(generic.ObjectView):
                 interval=interval,
                 task_queue=task_queue,
             )
+
+            # Convert to normal dict
+            post_data = normalize_querydict(request.POST)
+
+            # Remove unwanted elements
+            for field in EXCLUDED_POST_FIELDS:
+                post_data.pop(field, None)
+
+            script_execution.data["input"] = post_data
+
             script_execution.full_clean()
             script_execution.save()
 
@@ -206,6 +218,13 @@ class ScriptExecutionObjectChangeView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return ObjectChange.objects.restrict(request.user, "view").filter(request_id=str(parent.request_id))
+
+
+@register_model_view(models.ScriptExecution, "data")
+class ScriptExecutionDataView(generic.ObjectView):
+    queryset = models.ScriptExecution.objects.all()
+    template_name = "netbox_script_manager/scriptexecution_data.html"
+    tab = ViewTab(label="Data", permission="", weight=1000)
 
 
 class ScriptExecutionHtmx(generic.ObjectView):

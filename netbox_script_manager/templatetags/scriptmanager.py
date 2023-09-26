@@ -1,15 +1,28 @@
 import traceback
 from django import template
 from utilities.utils import dict_to_querydict
+import json
 
 register = template.Library()
 
 
+@register.filter
 def format_exception(e):
     return "".join(traceback.format_exception(e))
 
 
-register.filter("format_exception", format_exception)
+@register.filter
+def pretty_json(value):
+    return json.dumps(value, indent=4)
+
+
+@register.filter
+def urlencode_dict(value):
+    try:
+        qd = dict_to_querydict(value)
+        return f"?{qd.urlencode()}"
+    except:
+        return ""
 
 
 @register.inclusion_tag("netbox_script_manager/script_artifact_htmx_table.html", takes_context=True)

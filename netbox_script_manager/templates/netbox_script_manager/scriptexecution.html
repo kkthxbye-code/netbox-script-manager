@@ -11,6 +11,9 @@
       {% if request.user|can_delete:object %}
         {% delete_button object %}
       {% endif %}
+      <a href="{{ object.script_instance.get_absolute_url }}{{ object.data.input|urlencode_dict }}" type="submit" class="btn btn-sm btn-primary">
+        <i class="mdi mdi-refresh"></i> Rerun
+      </a>
     </div>
   </div>
 {% endblock %}

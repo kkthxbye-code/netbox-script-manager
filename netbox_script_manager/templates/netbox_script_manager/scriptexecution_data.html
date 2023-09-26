@@ -1,0 +1,37 @@
+{% extends 'generic/object.html' %}
+{% load perms %}
+{% load buttons %}
+{% load scriptmanager %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:object %}
+        {% delete_button object %}
+      {% endif %}
+      <a href="{{ object.script_instance.get_absolute_url }}{{ object.data.input|urlencode_dict }}" type="submit" class="btn btn-sm btn-primary">
+        <i class="mdi mdi-refresh"></i> Rerun
+      </a>
+    </div>
+  </div>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">Input</h5>
+                <div class="card-body">
+                    <pre class="block">{{ object.data.input|pretty_json }}</pre>
+                </div>
+            </div>
+        </div>
+        <div class="col col-md-6">
+            <div class="card">
+                <h5 class="card-header">Output</h5>
+                <div class="card-body">
+                    <pre class="block">{{ object.data.output }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

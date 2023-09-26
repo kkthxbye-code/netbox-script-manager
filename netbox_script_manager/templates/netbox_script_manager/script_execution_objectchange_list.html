@@ -1,8 +1,23 @@
 {% extends 'generic/object.html' %}
+{% load buttons %}
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
 {% load perms %}
+{% load scriptmanager %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:object %}
+        {% delete_button object %}
+      {% endif %}
+      <a href="{{ object.script_instance.get_absolute_url }}{{ object.data.input|urlencode_dict }}" type="submit" class="btn btn-sm btn-primary">
+        <i class="mdi mdi-refresh"></i> Rerun
+      </a>
+    </div>
+  </div>
+{% endblock %}
 
 {% block content %}
     {% include 'inc/table_controls_htmx.html' with table_modal="ObjectChangeTable_config" %}
@@ -19,8 +34,6 @@
     </form>
 {% endblock %}
 
-{% block controls %}
-{% endblock %}
 {% block modals %}
     {{ block.super }}
     {% table_config_form table %}
