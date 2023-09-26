@@ -244,6 +244,8 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
         the change_logging context manager (which is bypassed if commit == False).
         """
+        output = None
+
         try:
             try:
                 with transaction.atomic():
@@ -265,6 +267,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
                 script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
+
             script_execution.data["output"] = output
 
             script_execution.terminate(status=ScriptExecutionStatusChoices.STATUS_ERRORED)

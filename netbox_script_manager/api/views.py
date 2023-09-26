@@ -36,33 +36,29 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
     serializer_class = ScriptInstanceSerializer
     filterset_class = ScriptInstanceFilterSet
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def run(self, request, pk):
         # TODO: Add schema definitions.
         # TODO: Consider refactoring serializers
 
-        permission = get_permission_for_model(self.queryset.model, 'sync')
+        permission = get_permission_for_model(self.queryset.model, "sync")
         if not request.user.has_perm(permission):
             raise PermissionDenied(f"Missing permission: {permission}")
 
         script_instance = self.get_object()
-        input_serializer = ScriptInputSerializer(
-            data=request.data,
-            context={'script': script_instance.script}
-        )
+        input_serializer = ScriptInputSerializer(data=request.data, context={"script": script_instance.script})
 
         # TODO: Decide if we want this check
-        #if not Worker.count(get_connection('default')):
+        # if not Worker.count(get_connection('default')):
         #    raise RQWorkerNotRunningException()
 
-
         if input_serializer.is_valid():
-            schedule_at = input_serializer.validated_data.get('schedule_at')
-            interval = input_serializer.validated_data.get('interval')
+            schedule_at = input_serializer.validated_data.get("schedule_at")
+            interval = input_serializer.validated_data.get("interval")
             status = ScriptExecutionStatusChoices.STATUS_SCHEDULED if schedule_at else ScriptExecutionStatusChoices.STATUS_PENDING
-            
+
             # TODO: Fix this
-            #task_queue = input_serializer.validated_data.get('task_queue', None)
+            # task_queue = input_serializer.validated_data.get('task_queue', None)
             task_queue = "high"
 
             script_execution = ScriptExecution(
@@ -75,7 +71,10 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
                 interval=interval,
                 task_queue=task_queue,
             )
-            
+
+            # Save input data
+            script_execution.data["input"] = input_serializer.data["data"]
+
             script_execution.full_clean()
             script_execution.save()
 
@@ -86,9 +85,9 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
                     script_execution.scheduled,
                     run_script,
                     job_id=str(script_execution.task_id),
-                    data=input_serializer.data['data'],
+                    data=input_serializer.data["data"],
                     request=copy_safe_request(request),
-                    commit=input_serializer.data['commit'],
+                    commit=input_serializer.data["commit"],
                     script_execution=script_execution,
                     interval=script_execution.interval,
                     job_timeout=script_instance.script.job_timeout,
@@ -97,14 +96,14 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
                 queue.enqueue(
                     run_script,
                     job_id=str(script_execution.task_id),
-                    data=input_serializer.data['data'],
+                    data=input_serializer.data["data"],
                     request=copy_safe_request(request),
-                    commit=input_serializer.data['commit'],
+                    commit=input_serializer.data["commit"],
                     script_execution=script_execution,
                     job_timeout=script_instance.script.job_timeout,
                 )
 
-            serializer = ScriptExecutionSerializer(script_execution, context={'request': request})
+            serializer = ScriptExecutionSerializer(script_execution, context={"request": request})
 
             return Response(serializer.data)
 

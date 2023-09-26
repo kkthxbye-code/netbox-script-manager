@@ -5,6 +5,12 @@ import threading
 
 from django.conf import settings
 
+from utilities.utils import copy_safe_request, normalize_querydict
+
+# Fields not included when saving script input
+EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run"]
+
+# Name of the subpackage where custom scripts are stored
 CUSTOM_SCRIPT_SUBPACKAGE = "customscripts"
 
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
@@ -18,6 +24,7 @@ custom_script_root = f"{script_root}/{CUSTOM_SCRIPT_SUBPACKAGE}"
 sys.path.append(script_root)
 
 lock = threading.Lock()
+
 
 def is_script(obj):
     """
@@ -81,3 +88,16 @@ def clear_module_cache():
     for module_name in list(sys.modules.keys()):
         if module_name.startswith("customscripts"):
             del sys.modules[module_name]
+
+
+def prepare_post_data(request):
+    """
+    Normalize QueryDict to a normal dict and remove unwanted fields.
+    """
+    post_data = normalize_querydict(request.POST)
+
+    # Remove unwanted elements
+    for field in EXCLUDED_POST_FIELDS:
+        post_data.pop(field, None)
+
+    return post_data

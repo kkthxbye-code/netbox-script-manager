@@ -6,7 +6,7 @@ import uuid
 from django.contrib import messages
 from django.http import HttpResponse
 from django.conf import settings
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.views.generic import View
 
 from extras.models import ObjectChange
@@ -23,7 +23,6 @@ from .scripts import run_script
 from .api.serializers import ScriptLogLineMinimalSerializer
 
 
-EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run"]
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
 
@@ -63,14 +62,8 @@ class ScriptInstanceView(generic.ObjectView):
                 task_queue=task_queue,
             )
 
-            # Convert to normal dict
-            post_data = normalize_querydict(request.POST)
-
-            # Remove unwanted elements
-            for field in EXCLUDED_POST_FIELDS:
-                post_data.pop(field, None)
-
-            script_execution.data["input"] = post_data
+            # Save script input
+            script_execution.data["input"] = util.prepare_post_data(request.POST)
 
             script_execution.full_clean()
             script_execution.save()
@@ -102,7 +95,7 @@ class ScriptInstanceView(generic.ObjectView):
 
             return redirect("plugins:netbox_script_manager:scriptexecution", pk=script_execution.pk)
 
-        return redirect("plugins:netbox_script_manager:scriptinstance_list")
+        return render(request, "netbox_script_manager/scriptinstance.html", {"form": form, "object": instance})
 
 
 class ScriptInstanceListView(generic.ObjectListView):
