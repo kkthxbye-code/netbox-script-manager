@@ -82,6 +82,23 @@ class ScriptLogLineSerializer(NetBoxModelSerializer):
         )
 
 
+class ScriptLogLineMinimalSerializer(NetBoxModelSerializer):
+    message_markdown = MarkdownField(source="message", read_only=True)
+    timestamp_formatted = FormattedDateTimeField(source="timestamp", read_only=True)
+
+    class Meta:
+        model = ScriptLogLine
+        fields = (
+            "id",
+            "display",
+            "level",
+            "message",
+            "message_markdown",
+            "timestamp",
+            "timestamp_formatted",
+        )
+
+
 class ScriptArtifactSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptartifact-detail")
     script_execution = ScriptExecutionSerializer(read_only=True)

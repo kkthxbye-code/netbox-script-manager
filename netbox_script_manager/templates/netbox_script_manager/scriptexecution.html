@@ -103,6 +103,7 @@
     document.script_manager = {
       result_id: {{ object.pk }},
       script_completed: {{ object.is_completed|lower }},
+      logs: {{ log_lines|safe }},
     }
   </script>
   <script defer src="{% static 'netbox_script_manager/main.js' %}"></script>

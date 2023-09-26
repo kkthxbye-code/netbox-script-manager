@@ -4,13 +4,13 @@
 
     const capitalize = (s) => (s && s[0].toUpperCase() + s.slice(1)) || "";
 
-    const LOG_LINES_URL = "/api/plugins/script-manager/script-log-lines/";
-    const SCRIPT_EXECUTIONS_URL =
-        "/api/plugins/script-manager/script-executions/";
+    const BASE_URL = "/api/plugins/script-manager";
+    const LOG_LINES_URL = `${BASE_URL}/script-log-lines/`;
+    const SCRIPT_EXECUTIONS_URL = `${BASE_URL}/script-executions/`;
 
     // Easiest way to pass the ScriptResult id from the template to the Svelte app
     // when bundled as iife
-    let result_id = document.netbox_script_manager.result_id;
+    let result_id = document.script_manager.result_id;
     $: rows = [];
     let selection = {};
 
@@ -62,12 +62,21 @@
     ];
 
     onMount(() => {
+        // If the script already has logs, we pre-load them from the template to speed up presentation
+        if (document.script_manager.logs.length > 0) {
+            rows = [...document.script_manager.logs];
+        }
         lazyLoadRows();
 
         return () => {};
     });
 
-    async function getScriptResult(last_id) {
+    /**
+     * Get the ScriptResult object from the API
+     *
+     * @param last_id The last ID fetched from the API
+     */
+    async function getScriptResult() {
         let url = `${SCRIPT_EXECUTIONS_URL}${result_id}`;
 
         const response = await fetch(url);
@@ -78,6 +87,11 @@
 
     async function lazyLoadRows() {
         let last_id = null;
+
+        // If we already have rows, we start from the last one
+        if (rows.length > 0) {
+            last_id = rows[rows.length - 1].id;
+        }
 
         while (true) {
             let scriptResult = await getScriptResult();
@@ -95,7 +109,7 @@
 
     async function waitForArtifactTable() {
         await new Promise((r) => setTimeout(r, 2500));
-        document.netbox_script_manager.script_completed = true;
+        document.script_manager.script_completed = true;
     }
 
     async function getScriptLogs(last_id) {
@@ -124,27 +138,6 @@
             return null;
         }
     }
-
-    /*
-    function addRows() {
-        let random_int = Math.floor(Math.random() * 100);
-        // random String
-        let random_string = Math.random().toString(36).substring(7);
-        // another random string
-        let random_string2 = Math.random().toString(36).substring(7);
-
-        rows = [
-            ...rows,
-            {
-                id: random_int,
-                first_name: random_string,
-                last_name: random_string2,
-                pet: "woof",
-            },
-        ];
-        console.log(rows);
-    }
-    */
 </script>
 
 <SvelteTable

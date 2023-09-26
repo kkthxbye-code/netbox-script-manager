@@ -1,5 +1,7 @@
-import uuid
+import json
+
 import django_rq
+import uuid
 
 from django.contrib import messages
 from django.http import HttpResponse
@@ -13,6 +15,7 @@ from utilities.utils import copy_safe_request, normalize_querydict
 from . import filtersets, forms, models, tables
 from . import util
 from .scripts import run_script
+from .api.serializers import ScriptLogLineMinimalSerializer
 
 
 class ScriptInstanceView(generic.ObjectView):
@@ -140,6 +143,14 @@ class ScriptInstanceScriptExecutionsView(generic.ObjectChildrenView):
 class ScriptExecutionView(generic.ObjectView):
     queryset = models.ScriptExecution.objects.all()
     actions = ("delete",)
+
+    def get_extra_context(self, request, instance):
+        log_lines = instance.script_log_lines.all()
+        serialized_logs = ScriptLogLineMinimalSerializer(log_lines, many=True).data
+
+        return {
+            "log_lines": json.dumps(serialized_logs),
+        }
 
 
 class ScriptExecutionHtmx(generic.ObjectView):
