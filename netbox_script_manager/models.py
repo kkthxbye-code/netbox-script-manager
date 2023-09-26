@@ -3,6 +3,7 @@ from functools import cached_property
 import threading
 
 import django_rq
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
@@ -18,7 +19,7 @@ from .util import clear_module_cache
 
 
 lock = threading.Lock()
-
+plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
 class ScriptLogLine(models.Model):
     script_execution = models.ForeignKey(
@@ -122,9 +123,7 @@ class ScriptExecution(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
 
-        # TODO: Fix queue selection
-        # rq_queue_name = get_config().QUEUE_MAPPINGS.get(self.object_type.model, RQ_QUEUE_DEFAULT)
-        rq_queue_name = "high"
+        rq_queue_name = plugin_config.get("DEFAULT_QUEUE")
         queue = django_rq.get_queue(rq_queue_name)
         job = queue.fetch_job(str(self.task_id))
 

@@ -4,9 +4,9 @@ import traceback
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.utils.functional import classproperty
 from django.db import transaction
-from django import forms
 
 import django_rq
 import rq
@@ -15,14 +15,14 @@ from extras.context_managers import change_logging
 from extras.scripts import ScriptVariable
 from .forms import ScriptForm
 
-# from extras.models import ScriptModule
 from extras.signals import clear_webhooks
 from utilities.exceptions import AbortScript, AbortTransaction
 
 from .models import ScriptLogLine, ScriptArtifact, ScriptExecution
 from .choices import LogLevelChoices, ScriptExecutionStatusChoices
 
-# from .forms import ScriptForm
+
+plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
 
 class CustomScript:
@@ -106,7 +106,7 @@ class CustomScript:
 
     @classproperty
     def task_queues(self):
-        return getattr(self.Meta, "task_queues", ["default"])
+        return getattr(self.Meta, "task_queues", [plugin_config.get("DEFAULT_QUEUE")])
 
     @classmethod
     def _get_vars(cls):

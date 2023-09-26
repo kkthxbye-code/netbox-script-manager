@@ -5,6 +5,7 @@ import uuid
 
 from django.contrib import messages
 from django.http import HttpResponse
+from django.conf import settings
 from django.shortcuts import redirect
 from django.views.generic import View
 
@@ -18,6 +19,8 @@ from .choices import ScriptExecutionStatusChoices
 from .scripts import run_script
 from .api.serializers import ScriptLogLineMinimalSerializer
 
+
+plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
 class ScriptInstanceView(generic.ObjectView):
     queryset = models.ScriptInstance.objects.all()
@@ -42,7 +45,7 @@ class ScriptInstanceView(generic.ObjectView):
 
             task_queue = form.cleaned_data.pop("_task_queue", None)
             if not task_queue:
-                task_queue = "default"
+                task_queue = plugin_config.get("DEFAULT_QUEUE")
 
             script_execution = models.ScriptExecution(
                 script_instance=instance,

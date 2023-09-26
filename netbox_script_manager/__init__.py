@@ -14,10 +14,17 @@ class NetboxScriptManagerConfig(PluginConfig):
     description = "Improved custom script support for netbox"
     version = "0.1"
     base_url = "script-manager"
+    default_settings = {
+        "DEFAULT_QUEUE": "default",
+    }
+    required_settings = ["SCRIPT_ROOT"]
+    min_version = "3.5.0"
 
 
 config = NetboxScriptManagerConfig
 
+# To allow comitting script logs inside the transaction of a running script,
+# we must use a seperate database connection.
 from django.db import connections
 
 connections.databases["script_log"] = connections.databases["default"]
