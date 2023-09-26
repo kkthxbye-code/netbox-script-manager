@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 import django_rq
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -7,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework import status as http_status
 
-from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from utilities.utils import copy_safe_request
 from ..choices import ScriptExecutionStatusChoices
 from utilities.permissions import get_permission_for_model
@@ -24,6 +25,8 @@ from .serializers import (
 from ..models import ScriptInstance, ScriptArtifact, ScriptExecution, ScriptLogLine
 from ..filtersets import ScriptInstanceFilterSet, ScriptArtifactFilterSet, ScriptExecutionFilterSet, ScriptLogLineFilterSet
 from ..scripts import run_script
+
+plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
 
 class NetBoxScriptManagerView(APIRootView):
@@ -57,9 +60,7 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
             interval = input_serializer.validated_data.get("interval")
             status = ScriptExecutionStatusChoices.STATUS_SCHEDULED if schedule_at else ScriptExecutionStatusChoices.STATUS_PENDING
 
-            # TODO: Fix this
-            # task_queue = input_serializer.validated_data.get('task_queue', None)
-            task_queue = "high"
+            task_queue = input_serializer.validated_data.get("task_queue", plugin_config.get("DEFAULT_QUEUE"))
 
             script_execution = ScriptExecution(
                 script_instance=script_instance,
@@ -110,13 +111,13 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
         return Response(input_serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
 
 
-class ScriptExecutionViewSet(NetBoxModelViewSet):
+class ScriptExecutionViewSet(NetBoxReadOnlyModelViewSet):
     queryset = ScriptExecution.objects.all()
     serializer_class = ScriptExecutionSerializer
     filterset_class = ScriptExecutionFilterSet
 
 
-class ScriptLogLineViewSet(NetBoxModelViewSet):
+class ScriptLogLineViewSet(NetBoxReadOnlyModelViewSet):
     queryset = ScriptLogLine.objects.all()
     serializer_class = ScriptLogLineSerializer
     filterset_class = ScriptLogLineFilterSet
