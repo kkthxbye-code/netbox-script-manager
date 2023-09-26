@@ -16,7 +16,7 @@ from .models import ScriptExecution, ScriptInstance
 class ScriptInstanceForm(NetBoxModelForm):
     class Meta:
         model = ScriptInstance
-        fields = ("name", "group", "weight", "description", "task_queues", "tags")
+        fields = ("name", "group", "weight", "description", "task_queues", "comments", "tags")
 
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),

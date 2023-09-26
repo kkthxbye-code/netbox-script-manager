@@ -10,7 +10,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from netbox.models import NetBoxModel
+from netbox.models import PrimaryModel
+from netbox.models.features import ChangeLoggingMixin, ExportTemplatesMixin, WebhooksMixin
 from utilities.querysets import RestrictedQuerySet
 
 from .choices import LogLevelChoices, ScriptExecutionStatusChoices
@@ -71,7 +72,7 @@ class ScriptArtifact(models.Model):
         return reverse("plugins:netbox_script_manager:scriptartifact_download", args=[self.pk])
 
 
-class ScriptExecution(models.Model):
+class ScriptExecution(ExportTemplatesMixin, WebhooksMixin, ChangeLoggingMixin, models.Model):
     script_instance = models.ForeignKey(
         to="ScriptInstance",
         on_delete=models.CASCADE,
@@ -180,13 +181,12 @@ class ScriptExecution(models.Model):
         return ScriptExecutionStatusChoices.colors.get(self.status)
 
 
-class ScriptInstance(NetBoxModel):
+class ScriptInstance(PrimaryModel):
     name = models.CharField(max_length=100, null=False, blank=False)
     module_path = models.CharField(max_length=1000, null=False, blank=False)
     class_name = models.CharField(max_length=1000, null=False, blank=False)
     group = models.CharField(max_length=100, null=True, blank=True)
     weight = models.PositiveSmallIntegerField(default=1000)
-    description = models.CharField(max_length=1000, null=True, blank=True)
     task_queues = ArrayField(
         base_field=models.CharField(max_length=100, blank=True),
         blank=True,
