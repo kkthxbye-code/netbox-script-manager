@@ -1,8 +1,9 @@
 import django_filters
 from django.db.models import Q
-from netbox.filtersets import NetBoxModelFilterSet, BaseFilterSet
-from .models import ScriptInstance, ScriptArtifact, ScriptExecution, ScriptLogLine
-from .choices import ScriptExecutionStatusChoices, LogLevelChoices
+from netbox.filtersets import BaseFilterSet, NetBoxModelFilterSet
+
+from .choices import LogLevelChoices, ScriptExecutionStatusChoices
+from .models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 
 
 class ScriptInstanceFilterSet(NetBoxModelFilterSet):

@@ -1,30 +1,23 @@
 import uuid
 
-from django.conf import settings
 import django_rq
+from django.conf import settings
+from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
+from rest_framework import status as http_status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework import status as http_status
-
-from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
-from utilities.utils import copy_safe_request
-from ..choices import ScriptExecutionStatusChoices
 from utilities.permissions import get_permission_for_model
+from utilities.utils import copy_safe_request
 
-from .serializers import (
-    ScriptInstanceSerializer,
-    ScriptExecutionSerializer,
-    ScriptLogLineSerializer,
-    ScriptArtifactSerializer,
-    ScriptInputSerializer,
-)
-
-# from netbox_dns.filters import ViewFilter, ZoneFilter, NameServerFilter, RecordFilter
-from ..models import ScriptInstance, ScriptArtifact, ScriptExecution, ScriptLogLine
-from ..filtersets import ScriptInstanceFilterSet, ScriptArtifactFilterSet, ScriptExecutionFilterSet, ScriptLogLineFilterSet
+from ..choices import ScriptExecutionStatusChoices
+from ..filtersets import (ScriptArtifactFilterSet, ScriptExecutionFilterSet, ScriptInstanceFilterSet,
+                          ScriptLogLineFilterSet)
+from ..models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 from ..scripts import run_script
+from .serializers import (ScriptArtifactSerializer, ScriptExecutionSerializer, ScriptInputSerializer,
+                          ScriptInstanceSerializer, ScriptLogLineSerializer)
 
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 

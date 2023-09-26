@@ -1,7 +1,8 @@
+import json
 import traceback
+
 from django import template
 from utilities.utils import dict_to_querydict
-import json
 
 register = template.Library()
 

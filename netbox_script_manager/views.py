@@ -1,27 +1,23 @@
 import json
-
-import django_rq
 import uuid
 
+import django_rq
+from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
-from django.conf import settings
 from django.shortcuts import redirect, render
 from django.views.generic import View
-
+from extras.filtersets import ObjectChangeFilterSet
 from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
-from extras.filtersets import ObjectChangeFilterSet
 from netbox.views import generic
-from utilities.views import ContentTypePermissionRequiredMixin, ViewTab, register_model_view
 from utilities.utils import copy_safe_request, normalize_querydict
+from utilities.views import ContentTypePermissionRequiredMixin, ViewTab, register_model_view
 
-from . import filtersets, forms, models, tables
-from . import util
+from . import filtersets, forms, models, tables, util
+from .api.serializers import ScriptLogLineMinimalSerializer
 from .choices import ScriptExecutionStatusChoices
 from .scripts import run_script
-from .api.serializers import ScriptLogLineMinimalSerializer
-
 
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 

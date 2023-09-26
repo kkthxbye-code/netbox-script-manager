@@ -5,23 +5,19 @@ import traceback
 import uuid
 from datetime import timedelta
 
-from django.conf import settings
-from django.utils.functional import classproperty
-from django.db import transaction
-
 import django_rq
 import rq
-
+from django.conf import settings
+from django.db import transaction
+from django.utils.functional import classproperty
 from extras.context_managers import change_logging
 from extras.scripts import ScriptVariable
-from .forms import ScriptForm
-
 from extras.signals import clear_webhooks
 from utilities.exceptions import AbortScript, AbortTransaction
 
-from .models import ScriptLogLine, ScriptArtifact, ScriptExecution
 from .choices import LogLevelChoices, ScriptExecutionStatusChoices
-
+from .forms import ScriptForm
+from .models import ScriptArtifact, ScriptExecution, ScriptLogLine
 
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 

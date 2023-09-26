@@ -1,20 +1,16 @@
 from django import forms
-from django.utils.translation import gettext as _
-
-from netbox.forms import NetBoxModelForm, NetBoxModelFilterSetForm
-from extras.forms.mixins import SavedFiltersMixin
-
-from utilities.forms.widgets import DateTimePicker, NumberWithOptions, APISelectMultiple, DateTimePicker
-from utilities.forms import BootstrapMixin, FilterForm
-
-from extras.choices import DurationChoices
-from utilities.utils import local_now
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
+from extras.choices import DurationChoices
+from extras.forms.mixins import SavedFiltersMixin
+from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
+from utilities.forms import BootstrapMixin, FilterForm
+from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.widgets import APISelectMultiple, DateTimePicker, NumberWithOptions
+from utilities.utils import local_now
 
-from .models import ScriptInstance, ScriptExecution
 from .choices import ScriptExecutionStatusChoices
-from utilities.forms.fields import TagFilterField
+from .models import ScriptExecution, ScriptInstance
 
 
 class ScriptInstanceForm(NetBoxModelForm):

@@ -4,7 +4,6 @@ import sys
 import threading
 
 from django.conf import settings
-
 from utilities.utils import copy_safe_request, normalize_querydict
 
 # Fields not included when saving script input

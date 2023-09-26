@@ -1,10 +1,10 @@
 from django.template.defaultfilters import date as date_filter
-from rest_framework import serializers
-
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.config import get_config
+from rest_framework import serializers
 from utilities.templatetags.builtins.filters import render_markdown
-from netbox_script_manager.models import ScriptInstance, ScriptExecution, ScriptLogLine, ScriptArtifact
+
+from netbox_script_manager.models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 
 
 class MarkdownField(serializers.Field):

@@ -1,8 +1,8 @@
 import django_tables2 as tables
 from django_tables2.tables import Accessor
-
 from netbox.tables import NetBoxTable, columns
-from .models import ScriptInstance, ScriptExecution, ScriptLogLine, ScriptArtifact
+
+from .models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 
 
 class ScriptInstanceTable(NetBoxTable):

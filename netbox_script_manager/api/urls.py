@@ -2,10 +2,10 @@ from netbox.api.routers import NetBoxRouter
 
 from netbox_script_manager.api.views import (
     NetBoxScriptManagerView,
-    ScriptInstanceViewSet,
-    ScriptExecutionViewSet,
-    ScriptLogLineViewSet,
     ScriptArtifactViewSet,
+    ScriptExecutionViewSet,
+    ScriptInstanceViewSet,
+    ScriptLogLineViewSet,
 )
 
 router = NetBoxRouter()
