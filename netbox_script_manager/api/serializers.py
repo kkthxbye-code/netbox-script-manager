@@ -1,4 +1,6 @@
 from django.template.defaultfilters import date as date_filter
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.config import get_config
 from rest_framework import serializers
@@ -7,11 +9,13 @@ from utilities.templatetags.builtins.filters import render_markdown
 from netbox_script_manager.models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 
 
+@extend_schema_field(OpenApiTypes.STR)
 class MarkdownField(serializers.Field):
     def to_representation(self, value):
         return render_markdown(value)
 
 
+@extend_schema_field(OpenApiTypes.STR)
 class FormattedDateTimeField(serializers.Field):
     """
     Output a django rendered date/time field using the user's preferred format
@@ -28,6 +32,7 @@ class ScriptInstanceSerializer(NetBoxModelSerializer):
     name = serializers.CharField(required=True)
 
     class Meta:
+        read_only_fields = ["module_path", "class_name"]
         model = ScriptInstance
         fields = (
             "id",
@@ -35,6 +40,8 @@ class ScriptInstanceSerializer(NetBoxModelSerializer):
             "name",
             "group",
             "weight",
+            "module_path",
+            "class_name",
             "display",
             "task_queues",
             "tags",

@@ -35,6 +35,7 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
     queryset = ScriptInstance.objects.all()
     serializer_class = ScriptInstanceSerializer
     filterset_class = ScriptInstanceFilterSet
+    http_method_names = ['get', 'patch', 'delete']
 
     @action(detail=True, methods=["post"])
     def run(self, request, pk):
