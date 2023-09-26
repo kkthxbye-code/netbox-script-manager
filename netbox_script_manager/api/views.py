@@ -11,6 +11,7 @@ from rest_framework.routers import APIRootView
 from utilities.permissions import get_permission_for_model
 from utilities.utils import copy_safe_request
 
+from .. import util
 from ..choices import ScriptExecutionStatusChoices
 from ..filtersets import ScriptArtifactFilterSet, ScriptExecutionFilterSet, ScriptInstanceFilterSet, ScriptLogLineFilterSet
 from ..models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
@@ -35,14 +36,43 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
     queryset = ScriptInstance.objects.all()
     serializer_class = ScriptInstanceSerializer
     filterset_class = ScriptInstanceFilterSet
-    http_method_names = ["get", "patch", "delete"]
+
+    @action(detail=False, methods=["post"])
+    def load(self, request):
+        permission = get_permission_for_model(self.queryset.model, "add")
+
+        if not request.user.has_perm(permission):
+            raise PermissionDenied(f"Missing permission: {permission}")
+
+        scripts = util.load_scripts()
+        script_instances = {script_instance.script_path: script_instance for script_instance in ScriptInstance.objects.all()}
+        loaded_scripts = []
+
+        for script_path, script in scripts.items():
+            if script_path not in script_instances:
+                script_name = getattr(script.Meta, "name", script_path)
+                module_path, class_name = script_path.rsplit(".", 1)
+
+                script_instance = ScriptInstance(
+                    name=script_name,
+                    module_path=module_path,
+                    class_name=class_name,
+                    description=script.description,
+                    task_queues=script.task_queues,
+                    group=script.group,
+                    weight=script.weight,
+                )
+                script_instance.full_clean()
+                script_instance.save()
+                loaded_scripts.append(script_instance)
+
+        return Response(ScriptInstanceSerializer(loaded_scripts, many=True, context={"request": request}).data)
 
     @action(detail=True, methods=["post"])
     def run(self, request, pk):
         # TODO: Add schema definitions.
-        # TODO: Consider refactoring serializers
 
-        permission = get_permission_for_model(self.queryset.model, "sync")
+        permission = get_permission_for_model(self.queryset.model, "run")
         if not request.user.has_perm(permission):
             raise PermissionDenied(f"Missing permission: {permission}")
 
