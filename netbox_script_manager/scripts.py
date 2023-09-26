@@ -98,7 +98,7 @@ class CustomScript:
 
     @classproperty
     def task_queues(self):
-        return getattr(self.Meta, "task_queues", None)
+        return getattr(self.Meta, "task_queues", [])
 
     @classmethod
     def _get_vars(cls):
@@ -127,7 +127,7 @@ class CustomScript:
 
     # Form rendering
 
-    def get_fieldsets(self):
+    def get_fieldsets(self, instance=None):
         fieldsets = []
 
         if self.fieldsets:
@@ -140,7 +140,7 @@ class CustomScript:
         exec_parameters = ["_schedule_at", "_interval", "_task_queue", "_commit"] if self.scheduling_enabled else ["_task_queue", "_commit"]
 
         # Remove task queue field if there's no queues defined
-        if not self.task_queues:
+        if instance and not instance.task_queues:
             exec_parameters.remove("_task_queue")
 
         fieldsets.append(("Script Execution Parameters", exec_parameters))

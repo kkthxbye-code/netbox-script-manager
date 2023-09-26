@@ -31,11 +31,13 @@ class ScriptInstanceView(generic.ObjectView):
         except Exception as e:
             return {"exception": e}
 
-        return {"form": script.as_form(initial=normalize_querydict(request.GET), script_instance=instance)}
+        fieldsets = script.get_fieldsets(instance=instance)
+        return {"form": script.as_form(initial=normalize_querydict(request.GET), script_instance=instance), "fieldsets": fieldsets}
 
     def post(self, request, pk):
         instance = self.get_object(pk=pk)
         form = instance.script.as_form(request.POST, script_instance=instance)
+        fieldsets = instance.script.get_fieldsets(instance=instance)
 
         if form.is_valid():
             schedule_at = form.cleaned_data.pop("_schedule_at")
@@ -91,7 +93,7 @@ class ScriptInstanceView(generic.ObjectView):
 
             return redirect("plugins:netbox_script_manager:scriptexecution", pk=script_execution.pk)
 
-        return render(request, "netbox_script_manager/scriptinstance.html", {"form": form, "object": instance})
+        return render(request, "netbox_script_manager/scriptinstance.html", {"form": form, "object": instance, "fieldsets": fieldsets})
 
 
 class ScriptInstanceListView(generic.ObjectListView):
