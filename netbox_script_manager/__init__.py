@@ -8,7 +8,7 @@ __version__ = "0.1.0"
 from extras.plugins import PluginConfig
 
 
-class ScriptInstanceConfig(PluginConfig):
+class NetboxScriptManagerConfig(PluginConfig):
     name = "netbox_script_manager"
     verbose_name = "Script Manager"
     description = "Improved custom script support for netbox"
@@ -16,7 +16,7 @@ class ScriptInstanceConfig(PluginConfig):
     base_url = "script-manager"
 
 
-config = ScriptInstanceConfig
+config = NetboxScriptManagerConfig
 
 from django.db import connections
 
