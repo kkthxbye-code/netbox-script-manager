@@ -1,4 +1,5 @@
 import inspect
+import json
 import logging
 import traceback
 import uuid
@@ -230,6 +231,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
 
     script = script_execution.script_instance.script
     script.script_execution = script_execution
+    script_execution.data['input'] = json.dumps(request.POST)
 
     logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
     logger.info(f"Running script (commit={commit})")
@@ -250,14 +252,14 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
         try:
             try:
                 with transaction.atomic():
-                    script.output = script.run(data=data, commit=commit)
+                    output = script.run(data=data, commit=commit)
                     if not commit:
                         raise AbortTransaction()
             except AbortTransaction:
                 script.log_info("Database changes have been reverted automatically.")
                 clear_webhooks.send(request)
 
-            # ScriptExecution.data = ScriptOutputSerializer(script).data
+            script_execution.data['output'] = output
             script_execution.terminate()
         except Exception as e:
             if type(e) is AbortScript:
@@ -268,12 +270,12 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
                 script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
-            # job.data = ScriptOutputSerializer(script).data
+            script_execution.data['output'] = output
 
             script_execution.terminate(status=ScriptExecutionStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)
 
-        # logger.info(f"Script completed in {script_execution.duration}")
+        logger.info(f"Script completed in {script_execution.duration}")
 
     # Execute the script. If commit is True, wrap it with the change_logging context manager to ensure we process
     # change logging, webhooks, etc.

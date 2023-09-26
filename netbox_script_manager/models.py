@@ -112,6 +112,7 @@ class ScriptExecution(models.Model):
     data = models.JSONField(
         null=True,
         blank=True,
+        default=dict,
     )
 
     objects = RestrictedQuerySet.as_manager()
