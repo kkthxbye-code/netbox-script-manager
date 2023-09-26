@@ -50,7 +50,7 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
         if not request.user.has_perm(permission):
             raise PermissionDenied(f"Missing permission: {permission}")
 
-        scripts = util.load_scripts()
+        scripts, _ = util.load_scripts()
         script_instances = {script_instance.script_path: script_instance for script_instance in ScriptInstance.objects.all()}
         loaded_scripts = []
 

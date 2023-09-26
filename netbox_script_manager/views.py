@@ -1,3 +1,4 @@
+import io
 import json
 import uuid
 
@@ -7,6 +8,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.safestring import mark_safe
 from django.views.generic import View
 from extras.filtersets import ObjectChangeFilterSet
 from extras.models import ObjectChange
@@ -20,6 +22,7 @@ from .api.serializers import ScriptLogLineMinimalSerializer
 from .choices import ScriptExecutionStatusChoices
 from .models import ScriptExecution
 from .scripts import run_script
+from .templatetags.scriptmanager import format_exception
 
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 
@@ -129,7 +132,7 @@ class ScriptInstanceLoadView(ContentTypePermissionRequiredMixin, View):
     def get(self, request):
         scripts_found = False
 
-        scripts = util.load_scripts()
+        scripts, failed_modules = util.load_scripts()
         script_instances = {script_instance.script_path: script_instance for script_instance in models.ScriptInstance.objects.all()}
 
         for script_path, script in scripts.items():
@@ -153,9 +156,42 @@ class ScriptInstanceLoadView(ContentTypePermissionRequiredMixin, View):
 
                 messages.success(request, f'Script "{script_name}" loaded')
 
+        for module_name, exception in failed_modules.items():
+            # This is hackish but it works. Toast messages are kinda limited in netbox.
+            messages.error(
+                request,
+                mark_safe(
+                    f'Failed to load module {module_name}: <pre style="overflow-x: scroll; width: 350px;">{format_exception(exception)}</pre>'
+                ),
+            )
+
         if not scripts_found:
             messages.info(request, "No new scripts found")
 
+        return redirect("plugins:netbox_script_manager:scriptinstance_list")
+
+
+class ScriptInstanceSyncView(ContentTypePermissionRequiredMixin, View):
+    def get_required_permission(self):
+        return "netbox_script_manager.sync_scriptinstance"
+
+    def get(self, request):
+        try:
+            from dulwich import porcelain
+        except ImportError:
+            messages.error(request, "Dulwich is not installed")
+            return redirect("plugins:netbox_script_manager:scriptinstance_list")
+
+        script_root = plugin_config.get("SCRIPT_ROOT")
+
+        output_io = io.StringIO()
+        output = porcelain.pull(script_root, outstream=output_io)
+        message = [f"Pulled git repository: {script_root} {output_io.getvalue()}"]
+
+        if output_io:
+            message.append(output_io.getvalue())
+
+        messages.info(request, "\n".join(message))
         return redirect("plugins:netbox_script_manager:scriptinstance_list")
 
 

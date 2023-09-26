@@ -19,6 +19,7 @@ urlpatterns = (
     ),
     path("script-instances/delete/", views.ScriptInstanceBulkDeleteView.as_view(), name="scriptinstance_bulk_delete"),
     path("script-instances/load/", views.ScriptInstanceLoadView.as_view(), name="scriptinstance_load"),
+    path("script-instances/sync/", views.ScriptInstanceSyncView.as_view(), name="scriptinstance_sync"),
     # ScriptExecution
     path("script-executions/", views.ScriptExecutionListView.as_view(), name="scriptexecution_list"),
     path("script-executions/<int:pk>/", views.ScriptExecutionView.as_view(), name="scriptexecution"),

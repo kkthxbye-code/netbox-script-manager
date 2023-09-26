@@ -1,10 +1,13 @@
 import inspect
+import logging
 import pkgutil
 import sys
 import threading
 
 from django.conf import settings
 from utilities.utils import normalize_querydict
+
+logger = logging.getLogger("netbox.plugins.netbox_script_manager")
 
 # Fields not included when saving script input
 EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run"]
@@ -56,6 +59,7 @@ def load_scripts():
 
         scripts = {}
         modules = list(pkgutil.iter_modules([custom_script_root]))
+        failed_modules = {}
 
         # Iterate over all modules in the custom script root
         for importer, module_name, _ in modules:
@@ -66,17 +70,16 @@ def load_scripts():
                 # Manually load the module
                 module = importer.find_module(module_name).load_module(module_name)
             except Exception as e:
-                # TODO: Error handling
-                print(f"Failed to load module {module_name}: {e}")
-                import traceback
-
-                traceback.print_exc()
+                failed_modules[module_name] = e
+                logger.warning(f"Failed to load module {module_name}: {e}")
+                logger.exception(e)
+                continue
 
             # Find all CustomScript members
             for name, cls in inspect.getmembers(module, is_script):
                 scripts[f"{module.__name__}.{name}"] = cls
 
-        return scripts
+        return scripts, failed_modules
 
 
 def clear_module_cache():
