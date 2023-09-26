@@ -4,6 +4,7 @@ import threading
 
 import django_rq
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -178,6 +179,12 @@ class ScriptInstance(NetBoxModel):
     module_path = models.CharField(max_length=1000, null=False, blank=False)
     class_name = models.CharField(max_length=1000, null=False, blank=False)
     description = models.CharField(max_length=1000, null=True, blank=True)
+    task_queues = ArrayField(
+        base_field=models.CharField(max_length=100, blank=True),
+        blank=True,
+        default=list,
+        help_text="List of available task queues for the script.",
+    )
 
     # TODO: Figure out what to do
     def enqueue(self):

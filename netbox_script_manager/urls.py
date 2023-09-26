@@ -18,6 +18,7 @@ urlpatterns = (
         name="scriptinstance_changelog",
         kwargs={"model": models.ScriptInstance},
     ),
+    path("script-instances/delete/", views.ScriptInstanceBulkDeleteView.as_view(), name="scriptinstance_bulk_delete"),
     path("script-instances/load/", views.ScriptInstanceLoadView.as_view(), name="scriptinstance_load"),
     # ScriptExecution
     path("script-executions/", views.ScriptExecutionListView.as_view(), name="scriptexecution_list"),

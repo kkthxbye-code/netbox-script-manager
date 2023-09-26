@@ -6,6 +6,9 @@ from datetime import timedelta
 from django.utils.functional import classproperty
 from django.db import transaction
 
+import django_rq
+import rq
+
 from extras.context_managers import change_logging
 from extras.scripts import ScriptVariable
 from .forms import ScriptForm
@@ -91,6 +94,10 @@ class CustomScript:
     def scheduling_enabled(self):
         return getattr(self.Meta, "scheduling_enabled", True)
 
+    @classproperty
+    def task_queue(self):
+        return getattr(self.Meta, "task_queue", "default")
+
     @classmethod
     def _get_vars(cls):
         vars = {}
@@ -128,12 +135,12 @@ class CustomScript:
             fieldsets.append(("Script Data", fields))
 
         # Append the default fieldset if defined in the Meta class
-        exec_parameters = ("_schedule_at", "_interval", "_commit") if self.scheduling_enabled else ("_commit",)
+        exec_parameters = ("_schedule_at", "_interval", "_task_queue", "_commit") if self.scheduling_enabled else ("_task_queue", "_commit")
         fieldsets.append(("Script Execution Parameters", exec_parameters))
 
         return fieldsets
 
-    def as_form(self, data=None, files=None, initial=None):
+    def as_form(self, data=None, files=None, initial=None, script_instance=None):
         """
         Return a Django form suitable for populating the context data required to run this Script.
         """
@@ -145,6 +152,7 @@ class CustomScript:
 
         # Set initial "commit" checkbox state based on the script's Meta parameter
         form.fields["_commit"].initial = self.commit_default
+        form.fields["_task_queue"].choices = task_queue_choices(script_instance.task_queues)
 
         return form
 
@@ -189,8 +197,6 @@ class CustomScript:
     def log_failure(self, message):
         self.logger.log(logging.ERROR, message)
         self._log_message(LogLevelChoices.LOG_FAILURE, message)
-
-    # TODO: Are load_yaml and load_json necessary?
 
 
 def run_script(data, request, script_execution, commit=True, **kwargs):
@@ -274,3 +280,16 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
             commit=commit
         )
         """
+
+
+def task_queue_choices(task_queues):
+    choices = []
+    queues = django_rq.settings.QUEUES_LIST
+    for queue in queues:
+        if queue["name"] not in task_queues:
+            continue
+
+        workers = rq.Worker.count(queue=django_rq.get_queue(queue["name"]))
+        description = f"{queue['name']} ({workers} workers)"
+        choices.append((queue["name"], description))
+    return choices

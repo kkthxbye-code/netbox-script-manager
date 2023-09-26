@@ -24,16 +24,13 @@ class ScriptInstanceView(generic.ObjectView):
         except Exception as e:
             return {"exception": e}
 
-        return {"form": script.as_form(initial=normalize_querydict(request.GET))}
+        return {"form": script.as_form(initial=normalize_querydict(request.GET), script_instance=instance)}
 
     def post(self, request, pk):
         instance = self.get_object(pk=pk)
-        form = instance.script.as_form(request.POST)
+        form = instance.script.as_form(request.POST, script_instance=instance)
 
         if form.is_valid():
-            # print(instance)
-            # import json
-            # print(json.dumps(form.data))
             script_execution = models.ScriptExecution(
                 script_instance=instance,
                 task_id=uuid.uuid4(),
@@ -42,7 +39,11 @@ class ScriptInstanceView(generic.ObjectView):
             script_execution.full_clean()
             script_execution.save()
 
-            queue = django_rq.get_queue("high")  # TODO: Make queue configurable
+            task_queue = form.cleaned_data.pop("_task_queue")
+            if not task_queue:
+                task_queue = "default"
+
+            queue = django_rq.get_queue(task_queue)
             queue.enqueue(
                 run_script,
                 data=form.cleaned_data,
@@ -62,7 +63,7 @@ class ScriptInstanceListView(generic.ObjectListView):
     filterset = filtersets.ScriptInstanceFilterSet
     filterset_form = forms.ScriptInstanceFilterForm
     template_name = "netbox_script_manager/script_list.html"
-    # TOD: Add bulk actions
+    actions = ("delete", "bulk_delete")
 
 
 class ScriptInstanceEditView(generic.ObjectEditView):
@@ -72,6 +73,12 @@ class ScriptInstanceEditView(generic.ObjectEditView):
 
 class ScriptInstanceDeleteView(generic.ObjectDeleteView):
     queryset = models.ScriptInstance.objects.all()
+
+
+class ScriptInstanceBulkDeleteView(generic.BulkDeleteView):
+    queryset = models.ScriptInstance.objects.all()
+    filterset = filtersets.ScriptInstanceFilterSet
+    table = tables.ScriptInstanceTable
 
 
 class ScriptInstanceLoadView(ContentTypePermissionRequiredMixin, View):
@@ -93,7 +100,11 @@ class ScriptInstanceLoadView(ContentTypePermissionRequiredMixin, View):
                 module_path, class_name = script_path.rsplit(".", 1)
 
                 script_instance = models.ScriptInstance(
-                    name=script_name, module_path=module_path, class_name=class_name, description=getattr(script.Meta, "description", None)
+                    name=script_name,
+                    module_path=module_path,
+                    class_name=class_name,
+                    description=script.description,
+                    task_queue=script.task_queue,
                 )
                 script_instance.full_clean()
                 script_instance.save()

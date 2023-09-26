@@ -20,7 +20,7 @@ from utilities.forms.fields import TagFilterField
 class ScriptInstanceForm(NetBoxModelForm):
     class Meta:
         model = ScriptInstance
-        fields = ("name", "description", "tags")
+        fields = ("name", "description", "task_queues", "tags")
 
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),
@@ -73,7 +73,9 @@ class ScriptExecutionFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ScriptForm(BootstrapMixin, forms.Form):
-    _commit = forms.BooleanField(required=False, initial=True, label=_("Commit changes"), help_text=_("Commit changes to the database (uncheck for a dry-run)"))
+    _commit = forms.BooleanField(
+        required=False, initial=True, label=_("Commit changes"), help_text=_("Commit changes to the database (uncheck for a dry-run)")
+    )
     _schedule_at = forms.DateTimeField(
         required=False,
         widget=DateTimePicker(),
@@ -86,6 +88,11 @@ class ScriptForm(BootstrapMixin, forms.Form):
         label=_("Recurs every"),
         widget=NumberWithOptions(options=DurationChoices),
         help_text=_("Interval at which this script is re-run (in minutes)"),
+    )
+    _task_queue = forms.ChoiceField(
+        required=False,
+        help_text="The script will be run on the chosen queue",
+        label=_("Task queue"),
     )
 
     def __init__(self, *args, scheduling_enabled=True, **kwargs):

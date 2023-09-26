@@ -5,17 +5,24 @@ import threading
 
 from django.conf import settings
 
-# TODO: Refactor these settings
+CUSTOM_SCRIPT_SUBPACKAGE = "customscripts"
+
 plugin_config = settings.PLUGINS_CONFIG.get("netbox_script_manager")
 script_root = plugin_config.get("SCRIPT_ROOT") if plugin_config else None
-custom_script_root = f"{script_root}/customscripts"
+
+# The script root is appended with customscripts as this is the supported structure of the plugin
+# The main reason is to avoid name collisions with the built-in netbox apps
+custom_script_root = f"{script_root}/{CUSTOM_SCRIPT_SUBPACKAGE}"
+
+# The custom script root needs to be appended to the path for relative imports to work properly
+sys.path.append(script_root)
 
 lock = threading.Lock()
 
-sys.path.append(script_root)
-
-
 def is_script(obj):
+    """
+    Used to identify custom scripts that work with the plugin.
+    """
     from .scripts import CustomScript
 
     try:
@@ -36,14 +43,22 @@ def load_scripts():
     }
     ```
     """
+    # Deleting from sys.modules and reloading the module is not thread-safe so we wrap it all in a lock.
     with lock:
+        # Always start by clearing the module cache. Not clearing the cache presents issues with script inputs.
         clear_module_cache()
+
         scripts = {}
         modules = list(pkgutil.iter_modules([custom_script_root]))
 
+        # Iterate over all modules in the custom script root
         for importer, module_name, _ in modules:
-            module_name = "customscripts." + module_name
+            # We need to manually prepend the subpackage name to the module name to get the full module path
+            # TODO: There might be a better way of doing this.
+            module_name = f"{CUSTOM_SCRIPT_SUBPACKAGE}.{module_name}"
+
             try:
+                # Manually load the module
                 module = importer.find_module(module_name).load_module(module_name)
             except Exception as e:
                 # TODO: Error handling
@@ -52,6 +67,7 @@ def load_scripts():
 
                 traceback.print_exc()
 
+            # Find all CustomScript members
             for name, cls in inspect.getmembers(module, is_script):
                 scripts[f"{module.__name__}.{name}"] = cls
 
