@@ -31,6 +31,7 @@
             value: (v) => v.timestamp_formatted,
             sortable: true,
             class: "text-nowrap",
+            headerClass: "min-width-120",
             parseHTML: true,
         },
         {
@@ -48,6 +49,7 @@
             },
             parseHTML: true,
             filterPlaceholder: "All",
+            headerClass: "min-width-70",
         },
         {
             key: "message",
@@ -57,6 +59,7 @@
             parseHTML: true,
             searchValue: (v) => v.message,
             class: "w-100",
+            headerClass: "w-100",
             filterPlaceholder: "Search message",
         },
     ];

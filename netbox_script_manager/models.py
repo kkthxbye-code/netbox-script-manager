@@ -150,15 +150,16 @@ class ScriptExecution(models.Model):
 
     @property
     def duration(self):
-        if not self.completed:
-            return None
-
         start_time = self.started or self.created
 
         if not start_time:
-            return None
+            return ""
 
-        duration = self.completed - start_time
+        if self.completed:
+            duration = self.completed - start_time
+        else:
+            duration = timezone.now() - start_time
+
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
