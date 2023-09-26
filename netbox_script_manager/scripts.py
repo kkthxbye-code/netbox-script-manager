@@ -6,6 +6,7 @@ from datetime import timedelta
 
 from django.utils.functional import classproperty
 from django.db import transaction
+from django import forms
 
 import django_rq
 import rq
@@ -144,7 +145,12 @@ class CustomScript:
             fieldsets.append(("Script Data", fields))
 
         # Append the default fieldset if defined in the Meta class
-        exec_parameters = ("_schedule_at", "_interval", "_task_queue", "_commit") if self.scheduling_enabled else ("_task_queue", "_commit")
+        exec_parameters = ["_schedule_at", "_interval", "_task_queue", "_commit"] if self.scheduling_enabled else ["_task_queue", "_commit"]
+        
+        # Remove task queue field if there's no queues defined
+        if not self.task_queues:
+            exec_parameters.remove("_task_queue")
+        
         fieldsets.append(("Script Execution Parameters", exec_parameters))
 
         return fieldsets
@@ -161,7 +167,13 @@ class CustomScript:
 
         # Set initial "commit" checkbox state based on the script's Meta parameter
         form.fields["_commit"].initial = self.commit_default
-        form.fields["_task_queue"].choices = task_queue_choices(script_instance.task_queues)
+        
+        choices = task_queue_choices(script_instance.task_queues)
+        
+        if choices:
+            form.fields["_task_queue"].choices = choices
+        else:
+            del form.fields["_task_queue"]
 
         return form
 

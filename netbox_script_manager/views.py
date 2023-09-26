@@ -40,7 +40,7 @@ class ScriptInstanceView(generic.ObjectView):
 
             status = ScriptExecutionStatusChoices.STATUS_SCHEDULED if schedule_at else ScriptExecutionStatusChoices.STATUS_PENDING
 
-            task_queue = form.cleaned_data.pop("_task_queue")
+            task_queue = form.cleaned_data.pop("_task_queue", None)
             if not task_queue:
                 task_queue = "default"
 
