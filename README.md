@@ -15,10 +15,9 @@ The plugin can be used in addition to the built-in script support and does not d
 * Exceptions caused by errors in script files are displayed in the UI.
 * Log messages are saved and displayed when the script is running allowing live output for long running scripts.
 * It's possible to filter log lines by message and/or log level.
-* Script executions are listed in a tab when viewing a script.
 * Changelog entries are listed in a tab when viewing a finished script execution.
 * It's possible to save script artifacts during the execution of a script. These artifacts will show up as downloadable files.
-* Possibility to re-run scripts.
+* It's possible to re-run scripts.
 
 ## What is not supported
 
@@ -33,6 +32,44 @@ The plugin can be used in addition to the built-in script support and does not d
 |----------------|----------------|
 |     3.5        |      0.1.0     |
 
+## Migrating scripts
+
+The most important change is to change the import and name of the base `Script` class.
+
+Netbox Script:
+
+```python
+from extras.scripts import Script
+
+class MyCustomScript(Script):
+...
+```
+
+Netbox Script Manager Script:
+
+```python
+from netbox_script_manager.scripts import CustomScript
+
+class MyCustomScript(CustomScript):
+...
+```
+
+It is strongly recommended to do relative imports in your scripts, when using a nested structure or utility code.
+
+```python
+from .util import my_utility_method
+from ..subfolder import myCustomScript
+```
+
+The alternative is to do an absolute import:
+
+```python
+from customscripts.nested_folder.util import my_utility_method
+from customscripts.subfolder import myCustomScript
+```
+
+Please see the `Script folder` section for instructions regarding folder structure.
+
 ## Script folder
 
 The loading of scripts is a little different with netbox-script-manager. The `SCRIPT_ROOT` plugin setting must be set to define the path of the custom scripts, however the scripts must be located in a folder named `customscripts` in this path.
@@ -40,8 +77,8 @@ The loading of scripts is a little different with netbox-script-manager. The `SC
 A folder structure like this is required (`SCRIPT_ROOT` pointing to the `netboxscripts` folder):
 
 ```bash
-├── netboxscripts
-│   ├── customscripts
+├── netboxscripts # SCRIPT_ROOT
+│   ├── customscripts # Scripts will be discovered in this module, must be present
 │   │   ├── __init__.py
 │   │   ├── nestedmodule
 │   │   ├── root_script.py
@@ -74,3 +111,18 @@ PLUGINS_CONFIG = {
     },
 }
 ```
+
+## Confiugration
+
+The following options are required:
+
+* `SCRIPT_ROOT`: Path to the script folder containing the customscripts module. 
+
+The following options are optional:
+
+* `DEFAULT_QUEUE`: Specifies what queue scripts are run in by default. Defaults to the `default` queue.
+
+
+## Screenshots
+
+TODO
