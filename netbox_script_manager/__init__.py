@@ -1,7 +1,7 @@
 """Top-level package for NetBox Script Manager Plugin."""
 
 __author__ = """Simon Toft"""
-__email__ = "toft1988@gmail.com"
+__email__ = "festll234@gmail.com"
 __version__ = "0.2.0"
 
 
