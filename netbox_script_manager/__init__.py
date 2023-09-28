@@ -12,7 +12,7 @@ class NetboxScriptManagerConfig(PluginConfig):
     name = "netbox_script_manager"
     verbose_name = "Script Manager"
     description = "Improved custom script support for netbox"
-    version = "0.1"
+    version = "0.2.1"
     base_url = "script-manager"
     default_settings = {
         "DEFAULT_QUEUE": "default",
