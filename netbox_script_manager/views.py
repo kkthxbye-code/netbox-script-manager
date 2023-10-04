@@ -176,22 +176,20 @@ class ScriptInstanceSyncView(ContentTypePermissionRequiredMixin, View):
         return "netbox_script_manager.sync_scriptinstance"
 
     def get(self, request):
-        try:
-            from dulwich import porcelain
-        except ImportError:
-            messages.error(request, "Dulwich is not installed")
-            return redirect("plugins:netbox_script_manager:scriptinstance_list")
-
         script_root = plugin_config.get("SCRIPT_ROOT")
 
-        output_io = io.StringIO()
-        output = porcelain.pull(script_root, outstream=output_io)
-        message = [f"Pulled git repository: {script_root} {output_io.getvalue()}"]
+        try:
+            output_io = util.git_pull(script_root)
+        except Exception as e:
+            messages.error(request, f"Failed to pull git repository: {e}")
+            return redirect("plugins:netbox_script_manager:scriptinstance_list")
 
-        if output_io:
-            message.append(output_io.getvalue())
+        message = [f"Pulled git repository: {script_root}"]
+        if output_text := output_io.getvalue():
+            message.append(f"<pre>{output_text.decode('utf-8')}</pre>")
 
-        messages.info(request, "\n".join(message))
+        messages.info(request, mark_safe("\n".join(message)))
+
         return redirect("plugins:netbox_script_manager:scriptinstance_list")
 
 

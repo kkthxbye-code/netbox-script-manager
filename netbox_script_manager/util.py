@@ -1,4 +1,5 @@
 import inspect
+import io
 import logging
 import pkgutil
 import sys
@@ -105,3 +106,15 @@ def prepare_post_data(request):
         post_data.pop(field, None)
 
     return post_data
+
+
+def git_pull(path):
+    try:
+        from dulwich import porcelain
+    except ImportError as e:
+        raise ImportError("The dulwich must be installed for git sync functionality to work.")
+
+    output_io = io.BytesIO()
+    porcelain.pull(path, outstream=output_io, errstream=output_io)
+
+    return output_io

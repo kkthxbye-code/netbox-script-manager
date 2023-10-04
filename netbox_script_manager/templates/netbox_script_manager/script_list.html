@@ -3,6 +3,11 @@
 {% load static %}
 
 {% block extra_controls %}
+{% if perms.netbox_script_manager.sync_scriptinstance %}
+  <a href="{% url 'plugins:netbox_script_manager:scriptinstance_sync' %}{% querystring request %}" class="btn btn-sm btn-primary">
+    <i class="mdi mdi-refresh"></i> Git Sync
+  </a>
+{% endif %}
 {% if perms.netbox_script_manager.add_scriptinstance %}
   <a href="{% url 'plugins:netbox_script_manager:scriptinstance_load' %}{% querystring request %}" class="btn btn-sm btn-primary">
     <i class="mdi mdi-refresh"></i> Load Scripts
