@@ -112,7 +112,7 @@ PLUGINS_CONFIG = {
 }
 ```
 
-## Confiugration
+## Configuration
 
 The following options are required:
 
