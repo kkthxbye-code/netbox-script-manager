@@ -32,6 +32,42 @@ The plugin can be used in addition to the built-in script support and does not d
 |----------------|----------------|
 |     3.5        |      0.1.0     |
 
+
+## Installing
+
+Add the plugin to `local_requirements.txt` or `plugin_requirements.txt` (netbox-docker):
+
+```
+netbox-script-manager
+```
+
+Enable the plugin in `/opt/netbox/netbox/netbox/configuration.py`,
+ or if you use netbox-docker, your `/configuration/plugins.py` file:
+
+```python
+PLUGINS = [
+    'netbox_script_manager'
+]
+
+PLUGINS_CONFIG = {
+    "netbox_script_manager Manager": {
+        "SCRIPT_ROOT": "/path/to/script/folder/",
+        "DEFAULT_QUEUE": "high"
+    },
+}
+```
+
+## Configuration
+
+The following options are required:
+
+* `SCRIPT_ROOT`: Path to the script folder containing the customscripts module. 
+
+The following options are optional:
+
+* `DEFAULT_QUEUE`: Specifies what queue scripts are run in by default. Defaults to the `default` queue.
+
+
 ## Migrating scripts
 
 The most important change is to change the import and name of the base `Script` class.
@@ -88,40 +124,18 @@ A folder structure like this is required (`SCRIPT_ROOT` pointing to the `netboxs
 
 The reason for requiring this layout with a `customscripts` folder is to avoid name collisions when dynamically loading scripts. It also makes it easier to clear the internal python module cache which is needed for reloading scripts.
 
-## Installing
 
-Add the plugin to `local_requirements.txt` or `plugin_requirements.txt` (netbox-docker):
+## Git Sync
 
-```
-netbox-script-manager
-```
+> :grey_exclamation: git must be installed on the system
 
-Enable the plugin in `/opt/netbox/netbox/netbox/configuration.py`,
- or if you use netbox-docker, your `/configuration/plugins.py` file:
+> :grey_exclamation: The netbox user must have the `sync` additional action for the `Script Instance` permission
 
-```python
-PLUGINS = [
-    'netbox_script_manager'
-]
+> :warning: git recurses parent directories until finding a git directory. Make sure the `SCRIPT_ROOT` is a git directory.
 
-PLUGINS_CONFIG = {
-    "netbox_script_manager Manager": {
-        "SCRIPT_ROOT": "/path/to/script/folder/",
-        "DEFAULT_QUEUE": "high"
-    },
-}
-```
+Netbox Script Manager has basic support for pulling down changes for git repositories. The Sync button is located on the script list and simply calls `git pull` on in the `SCRIPT_ROOT/customscripts` folder. If the git reposity requires authentication, it's recommended to setup SSH auth for the repo and provide the key in the users `$HOME/.ssh` folder.
 
-## Configuration
-
-The following options are required:
-
-* `SCRIPT_ROOT`: Path to the script folder containing the customscripts module. 
-
-The following options are optional:
-
-* `DEFAULT_QUEUE`: Specifies what queue scripts are run in by default. Defaults to the `default` queue.
-
+If more advanced syncing is required, its recommended to handle this outside of netbox or alternatively use a custom script to do the sync.
 
 ## Screenshots
 
