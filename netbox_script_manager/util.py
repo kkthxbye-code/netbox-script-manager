@@ -1,7 +1,8 @@
 import inspect
-import io
 import logging
+import os
 import pkgutil
+import subprocess
 import sys
 import threading
 
@@ -9,6 +10,9 @@ from django.conf import settings
 from utilities.utils import normalize_querydict
 
 logger = logging.getLogger("netbox.plugins.netbox_script_manager")
+
+# Timeout of git system commands in seconds
+GIT_TIMEOUT = 5
 
 # Fields not included when saving script input
 EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run"]
@@ -21,7 +25,7 @@ script_root = plugin_config.get("SCRIPT_ROOT") if plugin_config else None
 
 # The script root is appended with customscripts as this is the supported structure of the plugin
 # The main reason is to avoid name collisions with the built-in netbox apps
-custom_script_root = f"{script_root}/{CUSTOM_SCRIPT_SUBPACKAGE}"
+custom_script_root = os.path.join(script_root, CUSTOM_SCRIPT_SUBPACKAGE)
 
 # The custom script root needs to be appended to the path for relative imports to work properly
 sys.path.append(script_root)
@@ -108,13 +112,21 @@ def prepare_post_data(request):
     return post_data
 
 
-def git_pull(path):
+def pull_scripts():
+    """
+    Pulls the git repository at the custom script root.
+    While dulwich could have been used here, there are some pretty stark limitations
+    to what dulwich supports. The simplest approach was just to call the system git command.
+    """
     try:
-        from dulwich import porcelain
-    except ImportError as e:
-        raise ImportError("The dulwich must be installed for git sync functionality to work.")
-
-    output_io = io.BytesIO()
-    porcelain.pull(path, outstream=output_io, errstream=output_io)
-
-    return output_io
+        result = subprocess.run(
+            ["git", "pull"],
+            cwd=custom_script_root,  # git recursively checks parent folders until it finds a git directory
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # git uses stderr as stdout for some reason
+            timeout=GIT_TIMEOUT,  # As we currently don't background this, we need a fairly low timeout
+        )
+        return result.stdout.decode()
+    except subprocess.CalledProcessError as e:
+        raise ValueError(f"Failed to pull git repository at {custom_script_root}: {e.output.decode()}")

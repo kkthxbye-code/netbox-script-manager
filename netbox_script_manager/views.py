@@ -1,4 +1,3 @@
-import io
 import json
 import uuid
 
@@ -176,17 +175,15 @@ class ScriptInstanceSyncView(ContentTypePermissionRequiredMixin, View):
         return "netbox_script_manager.sync_scriptinstance"
 
     def get(self, request):
-        script_root = plugin_config.get("SCRIPT_ROOT")
-
         try:
-            output_io = util.git_pull(script_root)
+            result = util.pull_scripts()
         except Exception as e:
             messages.error(request, f"Failed to pull git repository: {e}")
             return redirect("plugins:netbox_script_manager:scriptinstance_list")
 
-        message = [f"Pulled git repository: {script_root}"]
-        if output_text := output_io.getvalue():
-            message.append(f"<pre>{output_text.decode('utf-8')}</pre>")
+        message = [f"Pulled git repository"]
+        if result:
+            message.append(f"<pre>{result}</pre>")
 
         messages.info(request, mark_safe("\n".join(message)))
 
