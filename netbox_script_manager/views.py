@@ -40,7 +40,7 @@ class ScriptInstanceView(generic.ObjectView):
 
     def post(self, request, pk):
         instance = self.get_object(pk=pk)
-        form = instance.script.as_form(request.POST, script_instance=instance)
+        form = instance.script.as_form(request.POST, files=request.FILES, script_instance=instance)
         fieldsets = instance.script.get_fieldsets(instance=instance)
 
         if form.is_valid():
