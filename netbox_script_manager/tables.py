@@ -18,7 +18,7 @@ class ScriptInstanceTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ScriptInstance
         fields = ("pk", "id", "name", "group", "weight", "description", "module_path", "class_name", "created", "last_updated", "tags")
-        default_columns = ("name", "group", "description", "module_path", "class_name", "tags")
+        default_columns = ("group", "name", "description", "tags")
 
 
 class ScriptExecutionTable(NetBoxTable):
