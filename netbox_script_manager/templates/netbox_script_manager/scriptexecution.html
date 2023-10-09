@@ -54,6 +54,16 @@
               <th scope="row">Task Queue</th>
               <td>{{ object.task_queue }}</td>
             </tr>
+            {% if object.scheduled%}
+            <tr>
+              <th scope="row">Scheduled</th>
+              <td>{{ object.scheduled }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Interval</th>
+              <td>{{ object.interval }}</td>
+            </tr>
+            {% endif %}
           </table>
         </div>
       </div>
