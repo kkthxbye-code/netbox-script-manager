@@ -14,3 +14,8 @@
 # 0.3.0
 
 * Added optional tenant field to ScriptInstance
+
+# 0.3.1
+
+* Added last_execution column to ScriptInstance table
+* Slight change in default columns for ScriptInstance table
