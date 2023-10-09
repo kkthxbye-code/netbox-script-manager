@@ -167,7 +167,7 @@ class ScriptExecution(ExportTemplatesMixin, WebhooksMixin, ChangeLoggingMixin, m
 
     @property
     def duration(self):
-        start_time = self.started or self.created
+        start_time = self.started
 
         if not start_time:
             return ""
