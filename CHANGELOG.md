@@ -10,3 +10,7 @@
 
 * Fix FileVar not working
 * Rewrote git sync support to use system git
+
+# 0.3.0
+
+* Added optional tenant field to ScriptInstance
