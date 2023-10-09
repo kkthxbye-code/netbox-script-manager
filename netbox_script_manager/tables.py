@@ -14,10 +14,34 @@ class ScriptInstanceTable(NetBoxTable):
     tenant = TenantColumn(
         verbose_name=_("Tenant"),
     )
+    last_execution = tables.TemplateColumn(
+        template_code="""
+            {% if value %}
+                {{ value.created }}
+            {% else %}
+                <span class="text-muted">Never</span>
+            {% endif %}
+        """,
+        accessor="last_execution",
+        linkify=lambda value: value.get_absolute_url() if value else None,
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ScriptInstance
-        fields = ("pk", "id", "name", "group", "weight", "description", "module_path", "class_name", "created", "last_updated", "tags")
+        fields = (
+            "pk",
+            "id",
+            "name",
+            "group",
+            "weight",
+            "description",
+            "module_path",
+            "class_name",
+            "created",
+            "last_updated",
+            "tags",
+            "last_execution",
+        )
         default_columns = ("group", "name", "description", "tags")
 
 

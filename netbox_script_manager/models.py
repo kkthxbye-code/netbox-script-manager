@@ -225,6 +225,10 @@ class ScriptInstance(PrimaryModel):
 
             return script_class()
 
+    @property
+    def last_execution(self):
+        return self.script_executions.order_by("-created").first()
+
     class Meta:
         ordering = ("group", "weight", "name")
         indexes = [
