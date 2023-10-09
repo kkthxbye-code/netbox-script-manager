@@ -4,8 +4,9 @@ from django.utils.translation import gettext as _
 from extras.choices import DurationChoices
 from extras.forms.mixins import SavedFiltersMixin
 from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
+from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin, FilterForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker, NumberWithOptions
 from utilities.utils import local_now
 
@@ -14,9 +15,18 @@ from .models import ScriptExecution, ScriptInstance
 
 
 class ScriptInstanceForm(NetBoxModelForm):
+    tenant = DynamicModelChoiceField(
+        label=_("Tenant"),
+        queryset=Tenant.objects.all(),
+        required=False,
+        query_params={
+            "group_id": "$tenant_group",
+        },
+    )
+
     class Meta:
         model = ScriptInstance
-        fields = ("name", "group", "weight", "description", "task_queues", "comments", "tags")
+        fields = ("name", "group", "weight", "description", "task_queues", "comments", "tenant", "tags")
 
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),
@@ -28,6 +38,13 @@ class ScriptInstanceFilterForm(NetBoxModelFilterSetForm):
     name = forms.CharField(required=False)
     group = forms.CharField(required=False)
     tag = TagFilterField(model)
+    tenant_id = DynamicModelMultipleChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        null_option="None",
+        query_params={"group_id": "$tenant_group_id"},
+        label=_("Tenant"),
+    )
 
 
 class ScriptExecutionFilterForm(SavedFiltersMixin, FilterForm):

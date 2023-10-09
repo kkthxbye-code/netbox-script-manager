@@ -78,7 +78,24 @@
             </tr>
             <tr>
               <th scope="row">Description</th>
-              <td>{{ object.description }}</td>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Weight</th>
+              <td>{{ object.weight|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Group</th>
+              <td>{{ object.Group|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Tenant</th>
+              <td>
+                {% if object.tenant.group %}
+                  {{ object.tenant.group|linkify }} /
+                {% endif %}
+                {{ object.tenant|linkify|placeholder }}
+              </td>
             </tr>
           </table>
         </div>

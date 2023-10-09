@@ -1,12 +1,25 @@
 import django_filters
 from django.db.models import Q
+from django.utils.translation import gettext as _
 from netbox.filtersets import BaseFilterSet, NetBoxModelFilterSet
+from tenancy.models import Tenant
 
 from .choices import LogLevelChoices, ScriptExecutionStatusChoices
 from .models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 
 
 class ScriptInstanceFilterSet(NetBoxModelFilterSet):
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tenant.objects.all(),
+        label=_("Tenant (ID)"),
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tenant.objects.all(),
+        field_name="tenant__slug",
+        to_field_name="slug",
+        label=_("Tenant (slug)"),
+    )
+
     class Meta:
         model = ScriptInstance
         fields = ["name", "description", "group", "weight"]

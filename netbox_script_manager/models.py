@@ -207,6 +207,13 @@ class ScriptInstance(PrimaryModel):
         default=list,
         help_text="Comma separated list of available task queues for the script",
     )
+    tenant = models.ForeignKey(
+        to="tenancy.Tenant",
+        on_delete=models.SET_NULL,
+        related_name="+",
+        blank=True,
+        null=True,
+    )
 
     @cached_property
     def script(self):

@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.config import get_config
 from rest_framework import serializers
+from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.templatetags.builtins.filters import render_markdown
 
 from netbox_script_manager.models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
@@ -30,6 +31,7 @@ class FormattedDateTimeField(serializers.Field):
 class ScriptInstanceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptinstance-detail")
     name = serializers.CharField(required=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
 
     class Meta:
         read_only_fields = ["module_path", "class_name"]
@@ -44,6 +46,7 @@ class ScriptInstanceSerializer(NetBoxModelSerializer):
             "class_name",
             "display",
             "task_queues",
+            "tenant",
             "tags",
             "created",
             "last_updated",

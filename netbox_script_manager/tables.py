@@ -1,6 +1,8 @@
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 from django_tables2.tables import Accessor
 from netbox.tables import NetBoxTable, columns
+from tenancy.tables.columns import TenantColumn
 
 from .models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 
@@ -9,6 +11,9 @@ class ScriptInstanceTable(NetBoxTable):
     name = tables.Column(linkify=True)
     group = tables.Column(order_by=("group", "weight", "name"))
     tags = columns.TagColumn(url_name="plugins:netbox_script_manager:scriptinstance_list")
+    tenant = TenantColumn(
+        verbose_name=_("Tenant"),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ScriptInstance
