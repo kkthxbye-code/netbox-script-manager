@@ -25,3 +25,8 @@
 * Add scheduled/interval to script execution details
 * Fix duration being calculed by created time when not started yet.
 * Set new request id when scheduling the next task. Fixes exception when the next script was queued.
+
+# 0.3.3
+
+* Clear output when re-enqueuing a scheduled script.
+* Set the initial value of checkboxes when rerunning scripts.
