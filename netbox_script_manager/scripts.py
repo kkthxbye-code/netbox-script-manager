@@ -8,6 +8,7 @@ import django_rq
 import rq
 from django.conf import settings
 from django.db import transaction
+from django.forms.fields import BooleanField
 from django.utils.functional import classproperty
 from extras.context_managers import change_logging
 from extras.scripts import ScriptVariable
@@ -149,13 +150,23 @@ class CustomScript:
 
     def as_form(self, data=None, files=None, initial=None, script_instance=None):
         """
-        Return a Django form suitable for populating the context data required to run this Script.
+        Return a form based on any ScriptVars defined in the script.
         """
         # Create a dynamic ScriptForm subclass from script variables
         fields = {name: var.as_field() for name, var in self._get_vars().items()}
         FormClass = type("ScriptForm", (ScriptForm,), fields)
 
         form = FormClass(data, files, initial=initial)
+
+        # Hackish way to set initial values for BooleanFields when rerunning a script
+        # The sideeffect here is that the default value is not respected if the the
+        # user manually includes GET parameters in the URL.
+        if initial:
+            for field_name, field in form.fields.items():
+                if field_name == "_commit" or not isinstance(field, BooleanField):
+                    continue
+
+                field.initial = bool(initial.get(field_name))
 
         # Set initial "commit" checkbox state based on the script's Meta parameter
         form.fields["_commit"].initial = self.commit_default
