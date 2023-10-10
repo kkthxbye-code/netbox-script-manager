@@ -251,7 +251,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
                 script.log_info("Database changes have been reverted automatically.")
                 clear_webhooks.send(request)
 
-            script_execution.data["output"] = output
+            script_execution.data["output"] = str(output)
             script_execution.terminate()
         except Exception as e:
             if type(e) is AbortScript:
@@ -263,7 +263,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
 
-            script_execution.data["output"] = output
+            script_execution.data["output"] = str(output)
 
             script_execution.terminate(status=ScriptExecutionStatusChoices.STATUS_ERRORED)
             clear_webhooks.send(request)
@@ -287,6 +287,12 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
         new_request_id = uuid.uuid4()
         request.id = new_request_id
 
+        # Maintain the input but clear the output
+        new_data = {
+            "input": script_execution.data.get("input"),
+            "output": None,
+        }
+
         next_execution = ScriptExecution(
             script_instance=script_execution.script_instance,
             task_id=uuid.uuid4(),
@@ -296,6 +302,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
             scheduled=new_scheduled_time,
             interval=script_execution.interval,
             task_queue=script_execution.task_queue,
+            data=new_data,
         )
         next_execution.full_clean()
         next_execution.save()
