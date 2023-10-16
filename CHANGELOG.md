@@ -30,3 +30,7 @@
 
 * Clear output when re-enqueuing a scheduled script.
 * Set the initial value of checkboxes when rerunning scripts.
+
+# 0.3.4
+
+* Added git sync action to API
