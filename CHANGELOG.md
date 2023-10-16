@@ -33,13 +33,17 @@
 
 # 0.3.4
 
-* Added git sync action to API
+* Added git sync action to API.
 
 # 0.3.5
 
-* Fix API schema generation by adding docstring to rq-status endpoint
+* Fix API schema generation by adding docstring to rq-status endpoint.
 
 # 0.3.6
 
 * Cast log messages to string to prevent loggin None from throwing an error.
-* Fix schema for ScriptInstance actions
+* Fix schema for ScriptInstance actions.
+
+# 0.3.7
+
+* Fix "Create" changelogs not being created when a scheduled script is re-enqueued.

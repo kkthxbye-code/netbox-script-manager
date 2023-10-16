@@ -304,19 +304,20 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
             "output": None,
         }
 
-        next_execution = ScriptExecution(
-            script_instance=script_execution.script_instance,
-            task_id=uuid.uuid4(),
-            request_id=new_request_id,
-            user=request.user,
-            status=ScriptExecutionStatusChoices.STATUS_SCHEDULED,
-            scheduled=new_scheduled_time,
-            interval=script_execution.interval,
-            task_queue=script_execution.task_queue,
-            data=new_data,
-        )
-        next_execution.full_clean()
-        next_execution.save()
+        with change_logging(request):
+            next_execution = ScriptExecution(
+                script_instance=script_execution.script_instance,
+                task_id=uuid.uuid4(),
+                request_id=new_request_id,
+                user=request.user,
+                status=ScriptExecutionStatusChoices.STATUS_SCHEDULED,
+                scheduled=new_scheduled_time,
+                interval=script_execution.interval,
+                task_queue=script_execution.task_queue,
+                data=new_data,
+            )
+            next_execution.full_clean()
+            next_execution.save()
 
         queue = django_rq.get_queue(next_execution.task_queue)
 
