@@ -13,7 +13,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.views import APIView
 from utilities.permissions import get_permission_for_model
 from utilities.utils import copy_safe_request
 
@@ -73,6 +72,24 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
                 loaded_scripts.append(script_instance)
 
         return Response(ScriptInstanceSerializer(loaded_scripts, many=True, context={"request": request}).data)
+
+    @action(detail=False, methods=["post"])
+    def sync(self, request):
+        permission = get_permission_for_model(self.queryset.model, "sync")
+
+        if not request.user.has_perm(permission):
+            raise PermissionDenied(f"Missing permission: {permission}")
+
+        try:
+            result = util.pull_scripts()
+        except Exception as e:
+            return Response({"error": f"Failed to pull git repository: {e}"}, status=http_status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        messages = [f"Pulled git repository"]
+        if result:
+            messages.append(result)
+
+        return Response({"messages": messages}, status=http_status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"])
     def run(self, request, pk):
