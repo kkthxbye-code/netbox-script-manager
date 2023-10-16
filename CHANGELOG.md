@@ -38,3 +38,7 @@
 # 0.3.5
 
 * Fix API schema generation by adding docstring to rq-status endpoint
+
+# 0.3.6
+
+* Cast log messages to string to prevent loggin None from throwing an error.
