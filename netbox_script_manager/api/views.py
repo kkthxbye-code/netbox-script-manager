@@ -42,8 +42,16 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
     serializer_class = ScriptInstanceSerializer
     filterset_class = ScriptInstanceFilterSet
 
-    @action(detail=False, methods=["post"])
+    @extend_schema(
+        methods=["post"],
+        responses={200: ScriptInstanceSerializer(many=True)},
+        request=OpenApiTypes.OBJECT,
+    )
+    @action(detail=False, methods=["post"], filterset_class=None, pagination_class=None)
     def load(self, request):
+        """
+        Load new scripts from `SCRIPT_ROOT`.
+        """
         permission = get_permission_for_model(self.queryset.model, "add")
 
         if not request.user.has_perm(permission):
@@ -73,8 +81,16 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
 
         return Response(ScriptInstanceSerializer(loaded_scripts, many=True, context={"request": request}).data)
 
+    @extend_schema(
+        methods=["post"],
+        responses={200: OpenApiTypes.OBJECT, 500: OpenApiTypes.OBJECT},
+        request=None,
+    )
     @action(detail=False, methods=["post"])
     def sync(self, request):
+        """
+        Pull script changes from git.
+        """
         permission = get_permission_for_model(self.queryset.model, "sync")
 
         if not request.user.has_perm(permission):
@@ -91,10 +107,13 @@ class ScriptInstanceViewSet(NetBoxModelViewSet):
 
         return Response({"messages": messages}, status=http_status.HTTP_200_OK)
 
+    @extend_schema(
+        methods=["post"],
+        responses={200: ScriptExecutionSerializer()},
+        request=ScriptInputSerializer(),
+    )
     @action(detail=True, methods=["post"])
     def run(self, request, pk):
-        # TODO: Add schema definitions.
-
         permission = get_permission_for_model(self.queryset.model, "run")
         if not request.user.has_perm(permission):
             raise PermissionDenied(f"Missing permission: {permission}")
