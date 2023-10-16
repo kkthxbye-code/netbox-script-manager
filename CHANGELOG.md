@@ -34,3 +34,7 @@
 # 0.3.4
 
 * Added git sync action to API
+
+# 0.3.5
+
+* Fix API schema generation by adding docstring to rq-status endpoint

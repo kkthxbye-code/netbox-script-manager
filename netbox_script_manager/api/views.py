@@ -185,4 +185,7 @@ class RqStatusViewSet(viewsets.ViewSet):
 
     @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def list(self, request):
+        """
+        Returns the status of the RQ workers.
+        """
         return Response(get_statistics())
