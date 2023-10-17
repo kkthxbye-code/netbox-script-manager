@@ -50,7 +50,7 @@ PLUGINS = [
 ]
 
 PLUGINS_CONFIG = {
-    "netbox_script_manager Manager": {
+    "netbox_script_manager": {
         "SCRIPT_ROOT": "/path/to/script/folder/",
         "DEFAULT_QUEUE": "high"
     },
