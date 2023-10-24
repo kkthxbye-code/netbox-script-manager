@@ -9,7 +9,7 @@ The plugin can be used in addition to the built-in script support and does not d
 * Scripts can be stored in nested modules.
 * Scripts can rely on non-script module files.
 * Scripts are loaded from a file-system folder.
-* It's possible to sync scripts by pulling any git repo located in the `SCRIPT_ROOT` (WIP)
+* It's possible to sync scripts by pulling any git repo located in the `SCRIPT_ROOT`
 * Name, group, description, task queues, comments and tags are editable in the UI.
 * Task queue is selectable in the UI.
 * Exceptions caused by errors in script files are displayed in the UI.
