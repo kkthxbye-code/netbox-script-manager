@@ -50,4 +50,9 @@
 
 # 0.3.8
 
-* Fix "Script Data" being shown on no-input scripts
+* Fix "Script Data" being shown on no-input scripts.
+
+# 0.3.9
+
+* Omit _commit from saved input.
+* Overwrite ScriptForm default_renderer to revert hack introduced in core netbox.
