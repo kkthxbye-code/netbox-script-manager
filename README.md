@@ -124,12 +124,13 @@ A folder structure like this is required (`SCRIPT_ROOT` pointing to the `netboxs
 
 The reason for requiring this layout with a `customscripts` folder is to avoid name collisions when dynamically loading scripts. It also makes it easier to clear the internal python module cache which is needed for reloading scripts.
 
+Loading scripts is done either through the UI by pressing the `Load Scripts` button on the script view, or by calling the API endpoint `/api/plugins/script-manager/script-instances/load/`. Both of these require that the user has the `Can Add` action for the `Script Instance` object permission.
 
 ## Git Sync
 
-> :grey_exclamation: git must be installed on the system
+> :grey_exclamation: git must be installed on the system.
 
-> :grey_exclamation: The netbox user must have the `sync` additional action for the `Script Instance` permission
+> :grey_exclamation: The netbox user must have the `sync` additional action for the `Script Instance` object permission.
 
 > :warning: git recurses parent directories until finding a git directory. Make sure the `SCRIPT_ROOT` is a git directory.
 
