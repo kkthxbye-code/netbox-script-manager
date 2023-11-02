@@ -47,3 +47,7 @@
 # 0.3.7
 
 * Fix "Create" changelogs not being created when a scheduled script is re-enqueued.
+
+# 0.3.8
+
+* Fix "Script Data" being shown on no-input scripts

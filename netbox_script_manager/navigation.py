@@ -5,6 +5,7 @@ menu_items = (
     PluginMenuItem(
         link="plugins:netbox_script_manager:scriptinstance_list",
         link_text="Scripts",
+        permissions=["netbox_script_manager.view_scriptinstance"],
         buttons=(
             PluginMenuButton(
                 link="plugins:netbox_script_manager:scriptinstance_load",
@@ -18,5 +19,6 @@ menu_items = (
     PluginMenuItem(
         link="plugins:netbox_script_manager:scriptexecution_list",
         link_text="Executions",
+        permissions=["netbox_script_manager.view_scriptexecution"],
     ),
 )
