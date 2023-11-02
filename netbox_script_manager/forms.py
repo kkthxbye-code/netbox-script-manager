@@ -87,6 +87,8 @@ class ScriptExecutionFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class ScriptForm(BootstrapMixin, forms.Form):
+    default_renderer = forms.renderers.DjangoTemplates()
+
     _commit = forms.BooleanField(
         required=False, initial=True, label=_("Commit changes"), help_text=_("Commit changes to the database (uncheck for a dry-run)")
     )

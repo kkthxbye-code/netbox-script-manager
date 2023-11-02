@@ -15,7 +15,7 @@ logger = logging.getLogger("netbox.plugins.netbox_script_manager")
 GIT_TIMEOUT = 5
 
 # Fields not included when saving script input
-EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run"]
+EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run", "_commit"]
 
 # Name of the subpackage where custom scripts are stored
 CUSTOM_SCRIPT_SUBPACKAGE = "customscripts"
