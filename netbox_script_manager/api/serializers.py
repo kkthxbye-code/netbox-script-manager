@@ -1,12 +1,14 @@
 from django.template.defaultfilters import date as date_filter
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.config import get_config
 from rest_framework import serializers
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.templatetags.builtins.filters import render_markdown
 
+from netbox_script_manager.choices import ScriptExecutionStatusChoices
 from netbox_script_manager.models import ScriptArtifact, ScriptExecution, ScriptInstance, ScriptLogLine
 
 
@@ -71,6 +73,7 @@ class NestedScriptInstanceSerializer(NetBoxModelSerializer):
 class ScriptExecutionSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptexecution-detail")
     script_instance = NestedScriptInstanceSerializer(read_only=True)
+    status = ChoiceField(choices=ScriptExecutionStatusChoices)
 
     class Meta:
         model = ScriptExecution
