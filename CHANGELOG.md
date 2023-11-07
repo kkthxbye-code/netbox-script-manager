@@ -56,3 +56,8 @@
 
 * Omit _commit from saved input.
 * Overwrite ScriptForm default_renderer to revert hack introduced in core netbox.
+
+# 0.3.9
+
+* Fix group not being shown on script instance details.
+* Fix the ScriptExecution status field not being rendered as a proper netbox ChoiceField in the API.
