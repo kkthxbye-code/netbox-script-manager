@@ -33,6 +33,6 @@ setup(
     packages=find_packages(),
     test_suite="tests",
     url="https://github.com/kkthxbye-code/netbox_script_manager",
-    version="0.3.9",
+    version="0.3.10",
     zip_safe=False,
 )
