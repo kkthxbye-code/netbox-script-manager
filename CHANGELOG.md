@@ -61,3 +61,7 @@
 
 * Fix group not being shown on script instance details.
 * Fix the ScriptExecution status field not being rendered as a proper netbox ChoiceField in the API.
+
+# 0.3.11
+
+* Omit logging empty strings. Prevents exception when logging a blank value or None.
