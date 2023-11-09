@@ -183,6 +183,10 @@ class CustomScript:
         if not self.script_execution:
             raise RuntimeError("Script execution not set.")
 
+        # Don't log empty messages
+        if not message:
+            return
+
         script_log_line = ScriptLogLine(script_execution=self.script_execution, level=level, message=str(message))
         script_log_line.full_clean()
         script_log_line.save(using="script_log")
