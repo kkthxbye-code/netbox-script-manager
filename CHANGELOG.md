@@ -66,6 +66,6 @@
 
 * Omit logging empty strings. Prevents exception when logging a blank value or None.
 
-# 0.4.0
+# 0.3.12
 
 * Allow editing of class_name and module_path on ScriptInstance to allow the preservation of ScriptExecutions if the script is moved/renamed.
