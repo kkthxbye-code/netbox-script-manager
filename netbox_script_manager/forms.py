@@ -23,10 +23,18 @@ class ScriptInstanceForm(NetBoxModelForm):
             "group_id": "$tenant_group",
         },
     )
+    module_path = forms.CharField(
+        required=True,
+        help_text="The path to the python module. Can be changed if the script has been moved.",
+    )
+    class_name = forms.CharField(
+        required=True,
+        help_text="The name of the CustomScript class. Can be changed if the script class has been renamed.",
+    )
 
     class Meta:
         model = ScriptInstance
-        fields = ("name", "group", "weight", "description", "task_queues", "comments", "tenant", "tags")
+        fields = ("name", "module_path", "class_name", "group", "weight", "description", "task_queues", "comments", "tenant", "tags")
 
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),

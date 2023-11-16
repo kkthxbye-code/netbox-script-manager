@@ -36,7 +36,6 @@ class ScriptInstanceSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
 
     class Meta:
-        read_only_fields = ["module_path", "class_name"]
         model = ScriptInstance
         fields = (
             "id",
@@ -60,7 +59,6 @@ class NestedScriptInstanceSerializer(NetBoxModelSerializer):
     name = serializers.CharField(required=True)
 
     class Meta:
-        read_only_fields = ["module_path", "class_name"]
         model = ScriptInstance
         fields = (
             "id",
