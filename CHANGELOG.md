@@ -69,3 +69,7 @@
 # 0.3.12
 
 * Allow editing of class_name and module_path on ScriptInstance to allow the preservation of ScriptExecutions if the script is moved/renamed.
+
+# 0.3.13
+
+* Fix timezone support of script log message display

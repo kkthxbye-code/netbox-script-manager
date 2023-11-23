@@ -1,4 +1,5 @@
 from django.template.defaultfilters import date as date_filter
+from django.templatetags.tz import localtime
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from netbox.api.fields import ChoiceField
@@ -27,7 +28,7 @@ class FormattedDateTimeField(serializers.Field):
     DATE_FORMAT = get_config().DATETIME_FORMAT
 
     def to_representation(self, value):
-        return date_filter(value, self.DATE_FORMAT)
+        return date_filter(localtime(value), self.DATE_FORMAT)
 
 
 class ScriptInstanceSerializer(NetBoxModelSerializer):
