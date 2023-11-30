@@ -73,3 +73,7 @@
 # 0.3.13
 
 * Fix timezone support of script log message display
+
+# 0.4.0
+
+* Up the timeout of the git pull command.
