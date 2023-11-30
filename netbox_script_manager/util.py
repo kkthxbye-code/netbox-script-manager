@@ -12,7 +12,7 @@ from utilities.utils import normalize_querydict
 logger = logging.getLogger("netbox.plugins.netbox_script_manager")
 
 # Timeout of git system commands in seconds
-GIT_TIMEOUT = 5
+GIT_TIMEOUT = 30
 
 # Fields not included when saving script input
 EXCLUDED_POST_FIELDS = ["csrfmiddlewaretoken", "_schedule_at", "_interval", "_run", "_commit"]
