@@ -17,7 +17,7 @@ class ScriptInstanceTable(NetBoxTable):
     last_execution = tables.TemplateColumn(
         template_code="""
             {% if value %}
-                {{ value.created }}
+                {{ value.created|isodatetime }}
             {% else %}
                 <span class="text-muted">Never</span>
             {% endif %}

@@ -1,5 +1,4 @@
-from extras.plugins import PluginMenuButton, PluginMenuItem
-from utilities.choices import ButtonColorChoices
+from netbox.plugins import PluginMenuButton, PluginMenuItem
 
 menu_items = (
     PluginMenuItem(
@@ -11,7 +10,6 @@ menu_items = (
                 link="plugins:netbox_script_manager:scriptinstance_load",
                 title="Load Scripts",
                 icon_class="mdi mdi-refresh",
-                color=ButtonColorChoices.CYAN,
                 permissions=["netbox_script_manager.add_scriptinstance"],
             ),
         ),

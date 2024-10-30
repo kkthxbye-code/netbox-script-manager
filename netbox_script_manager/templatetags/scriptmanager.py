@@ -2,7 +2,7 @@ import json
 import traceback
 
 from django import template
-from utilities.utils import dict_to_querydict
+from utilities.querydict import dict_to_querydict
 
 register = template.Library()
 

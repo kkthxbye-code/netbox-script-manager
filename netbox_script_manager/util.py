@@ -7,7 +7,7 @@ import sys
 import threading
 
 from django.conf import settings
-from utilities.utils import normalize_querydict
+from utilities.querydict import normalize_querydict
 
 logger = logging.getLogger("netbox.plugins.netbox_script_manager")
 

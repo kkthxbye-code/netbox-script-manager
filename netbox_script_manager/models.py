@@ -5,7 +5,7 @@ from functools import cached_property
 
 import django_rq
 from django.conf import settings
-from django.contrib.auth.models import User
+from users.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.core import serializers
 from django.core.validators import MinValueValidator
@@ -13,7 +13,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from netbox.models import PrimaryModel
-from netbox.models.features import ChangeLoggingMixin, ExportTemplatesMixin, WebhooksMixin
+from netbox.models.features import ChangeLoggingMixin, ExportTemplatesMixin, EventRulesMixin
 from utilities.querysets import RestrictedQuerySet
 
 from .choices import LogLevelChoices, ScriptExecutionStatusChoices
@@ -45,9 +45,6 @@ class ScriptLogLine(models.Model):
     def __str__(self):
         return str(self.pk)
 
-    def get_absolute_url(self):
-        return reverse("plugins:netbox_script_manager:script_log_line", args=[self.pk])
-
     def get_level_color(self):
         return LogLevelChoices.colors.get(self.level)
 
@@ -74,7 +71,7 @@ class ScriptArtifact(models.Model):
         return reverse("plugins:netbox_script_manager:scriptartifact_download", args=[self.pk])
 
 
-class ScriptExecution(ExportTemplatesMixin, WebhooksMixin, ChangeLoggingMixin, models.Model):
+class ScriptExecution(ExportTemplatesMixin, EventRulesMixin, ChangeLoggingMixin, models.Model):
     script_instance = models.ForeignKey(
         to="ScriptInstance",
         on_delete=models.CASCADE,
@@ -153,7 +150,7 @@ class ScriptExecution(ExportTemplatesMixin, WebhooksMixin, ChangeLoggingMixin, m
         if task:
             task.cancel()
 
-    def serialize_object(obj, resolve_tags=True, extra=None):
+    def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
         """
         While the netbox serialize_object claims to support excluding fields, it doesn't in reality.
         """

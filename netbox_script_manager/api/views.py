@@ -14,7 +14,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from utilities.permissions import get_permission_for_model
-from utilities.utils import copy_safe_request
+from utilities.request import copy_safe_request
 
 from .. import util
 from ..choices import ScriptExecutionStatusChoices

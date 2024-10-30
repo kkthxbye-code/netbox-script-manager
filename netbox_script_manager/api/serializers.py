@@ -6,7 +6,7 @@ from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.config import get_config
 from rest_framework import serializers
-from tenancy.api.nested_serializers import NestedTenantSerializer
+from tenancy.api.serializers import TenantSerializer
 from utilities.templatetags.builtins.filters import render_markdown
 
 from netbox_script_manager.choices import ScriptExecutionStatusChoices
@@ -34,7 +34,7 @@ class FormattedDateTimeField(serializers.Field):
 class ScriptInstanceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_script_manager-api:scriptinstance-detail")
     name = serializers.CharField(required=True)
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    tenant = TenantSerializer(required=False, allow_null=True, nested=True)
 
     class Meta:
         model = ScriptInstance

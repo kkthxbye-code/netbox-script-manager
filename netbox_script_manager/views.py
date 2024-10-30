@@ -9,11 +9,12 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
-from extras.filtersets import ObjectChangeFilterSet
-from extras.models import ObjectChange
-from extras.tables import ObjectChangeTable
+from core.filtersets import ObjectChangeFilterSet
+from core.models import ObjectChange
+from core.tables import ObjectChangeTable
 from netbox.views import generic
-from utilities.utils import copy_safe_request, normalize_querydict
+from utilities.request import copy_safe_request
+from utilities.querydict import normalize_querydict
 from utilities.views import ContentTypePermissionRequiredMixin, ViewTab, register_model_view
 
 from . import filtersets, forms, models, tables, util
@@ -106,7 +107,10 @@ class ScriptInstanceListView(generic.ObjectListView):
     filterset = filtersets.ScriptInstanceFilterSet
     filterset_form = forms.ScriptInstanceFilterForm
     template_name = "netbox_script_manager/script_list.html"
-    actions = ("delete", "bulk_delete")
+    actions = {
+        "delete": {"delete"},
+        "bulk_delete": {"delete"},
+    }
 
 
 class ScriptInstanceEditView(generic.ObjectEditView):
@@ -196,7 +200,10 @@ class ScriptInstanceScriptExecutionsView(generic.ObjectChildrenView):
     child_model = models.ScriptExecution
     table = tables.ScriptExecutionTable
     filterset = filtersets.ScriptExecutionFilterSet
-    actions = ("delete", "bulk_delete")
+    actions = {
+        "delete": {"delete"},
+        "bulk_delete": {"delete"},
+    }
     template_name = "netbox_script_manager/script_instance_execution_list.html"
     tab = ViewTab(
         label="Executions",
@@ -212,7 +219,9 @@ class ScriptInstanceScriptExecutionsView(generic.ObjectChildrenView):
 
 class ScriptExecutionView(generic.ObjectView):
     queryset = models.ScriptExecution.objects.all()
-    actions = ("delete",)
+    actions = {
+        "delete": {"delete"},
+    }
 
     def get_extra_context(self, request, instance):
         log_lines = instance.script_log_lines.all()
@@ -229,7 +238,10 @@ class ScriptExecutionObjectChangeView(generic.ObjectChildrenView):
     child_model = ObjectChange
     table = ObjectChangeTable
     filterset = ObjectChangeFilterSet
-    actions = ("delete", "bulk_delete")
+    actions = {
+        "delete": {"delete"},
+        "bulk_delete": {"delete"},
+    }
     template_name = "netbox_script_manager/script_execution_objectchange_list.html"
     tab = ViewTab(
         label="Changes",
@@ -264,7 +276,11 @@ class ScriptExecutionHtmx(generic.ObjectView):
 class ScriptExecutionListView(generic.ObjectListView):
     queryset = models.ScriptExecution.objects.all()
     table = tables.ScriptExecutionTable
-    actions = ("export", "delete", "bulk_delete")
+    actions = {
+        "export": set(),
+        "delete": {"delete"},
+        "bulk_delete": {"delete"},
+    }
     filterset = filtersets.ScriptExecutionFilterSet
     filterset_form = forms.ScriptExecutionFilterForm
 
@@ -283,7 +299,7 @@ class ScriptArtifactListView(generic.ObjectListView):
     queryset = models.ScriptArtifact.objects.all()
     table = tables.ScriptArtifactTable
     filterset = filtersets.ScriptArtifactFilterSet
-    actions = tuple()
+    actions = {}
 
 
 class ScriptArtifactDownloadView(generic.ObjectView):

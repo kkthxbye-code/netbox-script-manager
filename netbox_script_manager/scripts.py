@@ -10,9 +10,9 @@ from django.conf import settings
 from django.db import transaction
 from django.forms.fields import BooleanField
 from django.utils.functional import classproperty
-from extras.context_managers import change_logging
+from netbox.context_managers import event_tracking
 from extras.scripts import ScriptVariable
-from extras.signals import clear_webhooks
+from core.signals import clear_events
 from utilities.exceptions import AbortScript, AbortTransaction
 
 from .choices import LogLevelChoices, ScriptExecutionStatusChoices
@@ -263,7 +263,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
                         raise AbortTransaction()
             except AbortTransaction:
                 script.log_info("Database changes have been reverted automatically.")
-                clear_webhooks.send(request)
+                clear_events.send(request)
 
             script_execution.data["output"] = str(output)
             script_execution.terminate()
@@ -280,14 +280,14 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
             script_execution.data["output"] = str(output)
 
             script_execution.terminate(status=ScriptExecutionStatusChoices.STATUS_ERRORED)
-            clear_webhooks.send(request)
+            clear_events.send(request)
 
         logger.info(f"Script completed in {script_execution.duration}")
 
     # Execute the script. If commit is True, wrap it with the change_logging context manager to ensure we process
     # change logging, webhooks, etc.
     if commit:
-        with change_logging(request):
+        with event_tracking(request):
             _run_script()
     else:
         _run_script()
@@ -307,7 +307,7 @@ def run_script(data, request, script_execution, commit=True, **kwargs):
             "output": None,
         }
 
-        with change_logging(request):
+        with event_tracking(request):
             next_execution = ScriptExecution(
                 script_instance=script_execution.script_instance,
                 task_id=uuid.uuid4(),

@@ -5,7 +5,7 @@ __email__ = "festll234@gmail.com"
 __version__ = "0.4.0"
 
 
-from extras.plugins import PluginConfig
+from netbox.plugins import PluginConfig
 
 
 class NetboxScriptManagerConfig(PluginConfig):

@@ -5,13 +5,13 @@
 {% load static %}
 {% load scriptmanager %}
 
-{% block controls %}
+{% block control-buttons %}
   <div class="controls">
     <div class="control-group">
       {% if request.user|can_delete:object %}
         {% delete_button object %}
       {% endif %}
-      <a href="{{ object.script_instance.get_absolute_url }}{{ object.data.input|urlencode_dict }}" type="submit" class="btn btn-sm btn-primary">
+      <a href="{{ object.script_instance.get_absolute_url }}{{ object.data.input|urlencode_dict }}" type="submit" class="btn btn-primary">
         <i class="mdi mdi-refresh"></i> Rerun
       </a>
     </div>
@@ -20,7 +20,7 @@
 
 {% block subtitle %}
   <div class="object-subtitle">
-    <span>Created {{ object.created|annotated_date }}</span>
+    <span>Created {{ object.created|isodatetime }}</span>
   </div>
 {% endblock %}
 
@@ -81,15 +81,15 @@
             </tr>
             <tr>
               <th scope="row">Created</th>
-              <td>{{ object.created|annotated_date }}</td>
+              <td>{{ object.created|isodatetime }}</td>
             </tr>
             <tr>
             <th scope="row">Started</th>
-              <td>{{ object.started|annotated_date }}</td>
+              <td>{{ object.started|isodatetime }}</td>
             </tr>
             <tr>
               <th scope="row">Completed</th>
-              <td>{{ object.completed|annotated_date }}</td>
+              <td>{{ object.completed|isodatetime }}</td>
             </tr>
             <tr>
               <th scope="row">Duration</th>

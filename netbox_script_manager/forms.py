@@ -1,14 +1,15 @@
 from django import forms
-from django.contrib.auth.models import User
+from users.models import User
 from django.utils.translation import gettext as _
 from extras.choices import DurationChoices
-from extras.forms.mixins import SavedFiltersMixin
+from netbox.forms.mixins import SavedFiltersMixin
 from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
 from tenancy.models import Tenant
-from utilities.forms import BootstrapMixin, FilterForm
+from utilities.forms import FilterForm
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker, NumberWithOptions
-from utilities.utils import local_now
+from utilities.datetime import local_now
+from utilities.forms.rendering import FieldSet
 
 from .choices import ScriptExecutionStatusChoices
 from .models import ScriptExecution, ScriptInstance
@@ -57,20 +58,18 @@ class ScriptInstanceFilterForm(NetBoxModelFilterSetForm):
 
 class ScriptExecutionFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ("q", "filter_id")),
-        (
-            "Creation",
-            (
-                "created__before",
-                "created__after",
-                "scheduled__before",
-                "scheduled__after",
-                "started__before",
-                "started__after",
-                "completed__before",
-                "completed__after",
-                "user",
-            ),
+        FieldSet("q", "filter_id", name="Query Filters"),
+        FieldSet(
+            "created__before",
+            "created__after",
+            "scheduled__before",
+            "scheduled__after",
+            "started__before",
+            "started__after",
+            "completed__before",
+            "completed__after",
+            "user",
+            name="Creation and Timing",
         ),
     )
     model = ScriptExecution
@@ -94,7 +93,7 @@ class ScriptExecutionFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ScriptForm(BootstrapMixin, forms.Form):
+class ScriptForm(forms.Form):
     default_renderer = forms.renderers.DjangoTemplates()
 
     _commit = forms.BooleanField(
@@ -125,6 +124,20 @@ class ScriptForm(BootstrapMixin, forms.Form):
         # Annotate the current system time for reference
         now = local_now().strftime("%Y-%m-%d %H:%M:%S")
         self.fields["_schedule_at"].help_text += f" (current time: <strong>{now}</strong>)"
+
+        # Stupid workaround for the insanely hacky netbox core code mentioned in #16293
+        # We can't use the default form renderer because it messes up checkboxes,
+        # so we have to manually inject the form-control class into all input fields.
+        for field in self.fields.values():
+            widget_type = type(field.widget)
+            if issubclass(widget_type, forms.widgets.Input) or issubclass(widget_type, forms.widgets.Textarea):
+                if hasattr(field.widget, "input_type") and field.widget.input_type == "checkbox":
+                    continue
+
+                if "class" in field.widget.attrs:
+                    field.widget.attrs["class"] += " form-control"
+                else:
+                    field.widget.attrs["class"] = "form-control"
 
         # Remove scheduling fields if scheduling is disabled
         if not scheduling_enabled:

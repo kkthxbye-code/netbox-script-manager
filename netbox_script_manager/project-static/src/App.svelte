@@ -16,11 +16,11 @@
 
     // Mapping of log level to bootstrap color
     let levelColors = {
-        debug: "bg-gray",
-        info: "bg-cyan",
-        success: "bg-green",
-        warning: "bg-yellow",
-        failure: "bg-red",
+        debug: "text-bg-gray",
+        info: "text.bg-cyan",
+        success: "text-bg-green",
+        warning: "text-bg-yellow",
+        failure: "text-bg-red",
     };
 
     // Column definitions
@@ -44,7 +44,7 @@
             renderValue: (v) => {
                 let bgColor = levelColors[v.level.toLowerCase()];
                 return `<span class="badge ${bgColor}">${capitalize(
-                    v.level
+                    v.level,
                 )}</span>`;
             },
             parseHTML: true,
@@ -148,4 +148,5 @@
     {rows}
     bind:filterSelections={selection}
     classNameTable={["table table-hover"]}
+    classNameInput={["ts-control"]}
 />
