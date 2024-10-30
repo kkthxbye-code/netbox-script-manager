@@ -31,6 +31,7 @@ The plugin can be used in addition to the built-in script support and does not d
 | NetBox Version | Plugin Version |
 |----------------|----------------|
 |     3.5        |      0.1.0     |
+|     4.1        |      1.0.0     |
 
 
 ## Installing
