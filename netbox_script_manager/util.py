@@ -5,6 +5,7 @@ import pkgutil
 import subprocess
 import sys
 import threading
+import importlib
 
 from django.conf import settings
 from utilities.querydict import normalize_querydict
@@ -73,7 +74,9 @@ def load_scripts():
 
             try:
                 # Manually load the module
-                module = importer.find_module(module_name).load_module(module_name)
+                spec = importer.find_spec(module_name)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
             except Exception as e:
                 failed_modules[module_name] = e
                 logger.warning(f"Failed to load module {module_name}: {e}")
