@@ -139,6 +139,23 @@ Netbox Script Manager has basic support for pulling down changes for git reposit
 
 If more advanced syncing is required, its recommended to handle this outside of netbox or alternatively use a custom script to do the sync.
 
+## Script Artifacts
+
+The plugin allows you to, in a script, save arbritrary blobs of data as downloadable artifacts.
+
+Example:
+
+```python
+class RootScript1(CustomScript):
+    class Meta:
+        name = "Test Script"
+        description = "Testing"
+
+    def run(self, data, commit):
+        # The data can be passed as bytes or a string. If passed as a string, the data will be encoded to bytes with the passed encoding automatically.
+        self.save_artifact("myfile.cfg", b"testfile", content_type="text/plain", encoding="utf-8")
+```
+
 ## Screenshots
 
 TODO
