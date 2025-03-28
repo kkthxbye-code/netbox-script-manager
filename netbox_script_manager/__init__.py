@@ -2,7 +2,7 @@
 
 __author__ = """Simon Toft"""
 __email__ = "festll234@gmail.com"
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
 
 from netbox.plugins import PluginConfig
@@ -12,7 +12,7 @@ class NetboxScriptManagerConfig(PluginConfig):
     name = "netbox_script_manager"
     verbose_name = "Script Manager"
     description = "Improved custom script support for netbox"
-    version = "1.0.1"
+    version = "1.1.0"
     base_url = "script-manager"
     default_settings = {
         "DEFAULT_QUEUE": "default",
