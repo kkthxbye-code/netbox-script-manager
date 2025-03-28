@@ -1,7 +1,7 @@
 from django import forms
 from users.models import User
 from django.utils.translation import gettext as _
-from extras.choices import DurationChoices
+from core.choices import JobIntervalChoices
 from netbox.forms.mixins import SavedFiltersMixin
 from netbox.forms import NetBoxModelFilterSetForm, NetBoxModelForm
 from tenancy.models import Tenant
@@ -109,7 +109,7 @@ class ScriptForm(forms.Form):
         required=False,
         min_value=1,
         label=_("Recurs every"),
-        widget=NumberWithOptions(options=DurationChoices),
+        widget=NumberWithOptions(options=JobIntervalChoices),
         help_text=_("Interval at which this script is re-run (in minutes)"),
     )
     _task_queue = forms.ChoiceField(
